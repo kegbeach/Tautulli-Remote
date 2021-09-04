@@ -1,19 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:tautulli_remote/core_new/network_info/new_network_info.dart';
 import 'package:tautulli_remote/features_new/new_settings/data/datasources/new_settings_data_source.dart';
 import 'package:tautulli_remote/features_new/new_settings/data/repositories/new_settings_repository_impl.dart';
 
 class MockSettingsDataSource extends Mock implements NewSettingsDataSource {}
 
-class MockNetworkInfo extends Mock implements NewNetworkInfo {}
-
 void main() {
   final mockDataSource = MockSettingsDataSource();
-  final mockNetworkInfo = MockNetworkInfo();
   final repository = NewSettingsRepositoryImpl(
     dataSource: mockDataSource,
-    networkInfo: mockNetworkInfo,
   );
 
   const int tServerTimeout = 15;
