@@ -31,4 +31,8 @@ class WizardAcceptOneSignal extends WizardEvent {
   List<Object> get props => [accept];
 }
 
-class WizardRejectOneSignalPermission extends WizardEvent {}
+// class WizardRejectOneSignalPermission extends WizardEvent {}
+
+// class WizardUpdateIosAppTrackingPermission extends WizardEvent {}
+
+// class WizardUpdateIosNotificationPermission extends WizardEvent {}
