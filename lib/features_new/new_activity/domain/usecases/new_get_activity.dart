@@ -9,6 +9,8 @@ class NewGetActivity {
 
   NewGetActivity(this.repository);
 
+  /// Returns an `ApiResponseData` object that contains a
+  /// `List<NewActivityModel>` under `data` and a `bool` under `primaryActive`.
   Future<Either<NewFailure, ApiResponseData>> call({
     required String tautulliId,
   }) async {
