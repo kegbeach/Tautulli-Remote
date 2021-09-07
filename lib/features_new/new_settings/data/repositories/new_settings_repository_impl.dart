@@ -1,7 +1,8 @@
+import '../../../../core_new/database/data/models/new_server_model.dart';
 import '../../domain/repositories/new_settings_repository.dart';
 import '../datasources/new_settings_data_source.dart';
 
-class NewSettingsRepositoryImpl implements NewSettingsRespository {
+class NewSettingsRepositoryImpl implements NewSettingsRepository {
   final NewSettingsDataSource dataSource;
 
   NewSettingsRepositoryImpl({required this.dataSource});
@@ -14,6 +15,11 @@ class NewSettingsRepositoryImpl implements NewSettingsRespository {
   @override
   Future<bool> setCustomCertHashList(List<int> certHashList) async {
     return dataSource.setCustomCertHashList(certHashList);
+  }
+
+  @override
+  Future<NewServerModel> getServerByTautulliId(String tautulliId) async {
+    return await dataSource.getServerByTautulliId(tautulliId);
   }
 
   @override

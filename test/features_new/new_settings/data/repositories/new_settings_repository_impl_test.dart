@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:tautulli_remote/core_new/database/data/models/new_server_model.dart';
+import 'package:tautulli_remote/core_new/error/new_exception.dart';
 import 'package:tautulli_remote/features_new/new_settings/data/datasources/new_settings_data_source.dart';
 import 'package:tautulli_remote/features_new/new_settings/data/repositories/new_settings_repository_impl.dart';
 
@@ -12,6 +14,19 @@ void main() {
   );
 
   const int tServerTimeout = 15;
+
+  NewServerModel tServerModel = NewServerModel(
+    plexName: 'Plex',
+    plexIdentifier: '123abc',
+    tautulliId: '456def',
+    primaryConnectionAddress: 'http://192.168.0.10:8181',
+    primaryConnectionProtocol: 'http',
+    primaryConnectionDomain: '192.168.0.10:8181',
+    deviceToken: 'xyz',
+    primaryActive: true,
+    onesignalRegistered: true,
+    plexPass: true,
+  );
 
   group('Custom Cert Hash List', () {
     test(
@@ -39,6 +54,38 @@ void main() {
         await repository.setCustomCertHashList([1, 2]);
         // assert
         verify(() => mockDataSource.setCustomCertHashList([1, 2])).called(1);
+      },
+    );
+  });
+
+  group('getServerByTautulliId', () {
+    test(
+      'should return a NewServerModel for the corresponding Tautulli ID',
+      () async {
+        // arrange
+        when(() => mockDataSource.getServerByTautulliId(any()))
+            .thenAnswer((_) async => tServerModel);
+        // act
+        final result =
+            await repository.getServerByTautulliId(tServerModel.tautulliId);
+        // assert
+        expect(result, equals(tServerModel));
+      },
+    );
+
+    test(
+      'should throw ServerNotFoundException when there is no server for corresponding Tautulli ID',
+      () async {
+        // arrange
+        when(() => mockDataSource.getServerByTautulliId(any()))
+            .thenThrow(ServerNotFoundException());
+        // act
+        final call = repository.getServerByTautulliId(tServerModel.tautulliId);
+        // assert
+        expect(
+          () => call,
+          throwsA(isA<ServerNotFoundException>()),
+        );
       },
     );
   });

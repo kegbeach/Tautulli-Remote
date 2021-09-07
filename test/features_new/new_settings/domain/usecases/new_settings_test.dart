@@ -1,15 +1,29 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:tautulli_remote/core_new/database/data/models/new_server_model.dart';
 import 'package:tautulli_remote/features_new/new_settings/domain/repositories/new_settings_repository.dart';
 import 'package:tautulli_remote/features_new/new_settings/domain/usecases/new_settings.dart';
 
-class MockSettingsRepository extends Mock implements NewSettingsRespository {}
+class MockSettingsRepository extends Mock implements NewSettingsRepository {}
 
 void main() {
   final mockSettingsRepository = MockSettingsRepository();
   final settings = NewSettings(mockSettingsRepository);
 
   const int tServerTimeout = 15;
+
+  NewServerModel tServerModel = NewServerModel(
+    plexName: 'Plex',
+    plexIdentifier: '123abc',
+    tautulliId: '456def',
+    primaryConnectionAddress: 'http://192.168.0.10:8181',
+    primaryConnectionProtocol: 'http',
+    primaryConnectionDomain: '192.168.0.10:8181',
+    deviceToken: 'xyz',
+    primaryActive: true,
+    onesignalRegistered: true,
+    plexPass: true,
+  );
 
   test(
     'getCustomCertHashList should get list of custom cert hashes from settings',
@@ -39,6 +53,23 @@ void main() {
       await settings.setCustomCertHashList([1, 2]);
       // assert
       verify(() => mockSettingsRepository.setCustomCertHashList([1, 2]))
+          .called(1);
+      verifyNoMoreInteractions(mockSettingsRepository);
+    },
+  );
+
+  test(
+    'getServerByTautulliId should get the Server Model from the database',
+    () async {
+      // arrange
+      when(() => mockSettingsRepository.getServerByTautulliId(any()))
+          .thenAnswer((_) async => tServerModel);
+      // act
+      final result =
+          await settings.getServerByTautulliId(tServerModel.tautulliId);
+      // assert
+      expect(result, equals(tServerModel));
+      verify(() => mockSettingsRepository.getServerByTautulliId(any()))
           .called(1);
       verifyNoMoreInteractions(mockSettingsRepository);
     },

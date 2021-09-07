@@ -1,9 +1,13 @@
+import '../../../../core_new/database/data/datasources/new_database.dart';
+import '../../../../core_new/database/data/models/new_server_model.dart';
 import '../../../../core_new/local_storage/local_storage.dart';
 
 abstract class NewSettingsDataSource {
   Future<List<int>> getCustomCertHashList();
 
   Future<bool> setCustomCertHashList(List<int> certHashList);
+
+  Future<NewServerModel> getServerByTautulliId(String tautulliId);
 
   Future<int> getServerTimeout();
 
@@ -37,6 +41,11 @@ class NewSettingsDataSourceImpl implements NewSettingsDataSource {
         certHashList.map((i) => i.toString()).toList();
 
     return localStorage.setStringList(CUSTOM_CERT_HASH_LIST, stringList);
+  }
+
+  @override
+  Future<NewServerModel> getServerByTautulliId(String tautulliId) async {
+    return await DBProvider.db.getServerByTautulliId(tautulliId);
   }
 
   @override
