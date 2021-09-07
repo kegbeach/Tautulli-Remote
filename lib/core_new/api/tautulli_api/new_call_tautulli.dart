@@ -12,7 +12,7 @@ abstract class NewCallTautulli {
   Future call({
     required String connectionProtocol,
     required String connectionDomain,
-    required String connectionPath,
+    required String? connectionPath,
     required String deviceToken,
     required String cmd,
     required Map<String, String> params,
@@ -26,7 +26,7 @@ class NewCallTautulliImpl implements NewCallTautulli {
   Future call({
     required String connectionProtocol,
     required String connectionDomain,
-    required String connectionPath,
+    required String? connectionPath,
     required String deviceToken,
     required String cmd,
     required Map<String, String> params,
