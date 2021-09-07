@@ -26,6 +26,53 @@ void main() {
   );
 
   test(
+    'addServer should return the database ID of the added server',
+    () async {
+      // arrange
+      when(() => mockSettingsRepository.addServer(tServerModel)).thenAnswer(
+        (_) async => 1,
+      );
+      // act
+      final serverId = await settings.addServer(tServerModel);
+      // assert
+      expect(serverId, equals(1));
+      verify(() => mockSettingsRepository.addServer(tServerModel)).called(1);
+      verifyNoMoreInteractions(mockSettingsRepository);
+    },
+  );
+
+  test(
+    'deleteServer should forward the request to the repository',
+    () async {
+      /// arrange
+      when(() => mockSettingsRepository.deleteServer(1)).thenAnswer(
+        (_) async => Future.value(),
+      );
+      // act
+      await settings.deleteServer(1);
+      // assert
+      verify(() => mockSettingsRepository.deleteServer(1)).called(1);
+      verifyNoMoreInteractions(mockSettingsRepository);
+    },
+  );
+
+  test(
+    'getAllServers should return a list of all servers from the database',
+    () async {
+      /// arrange
+      when(() => mockSettingsRepository.getAllServers()).thenAnswer(
+        (_) async => [tServerModel],
+      );
+      // act
+      final serverList = await settings.getAllServers();
+      // assert
+      expect(serverList, equals([tServerModel]));
+      verify(() => mockSettingsRepository.getAllServers()).called(1);
+      verifyNoMoreInteractions(mockSettingsRepository);
+    },
+  );
+
+  test(
     'getCustomCertHashList should get list of custom cert hashes from settings',
     () async {
       // arrange

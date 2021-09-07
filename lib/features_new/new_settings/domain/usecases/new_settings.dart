@@ -1,11 +1,25 @@
-import 'package:tautulli_remote/core_new/database/data/models/new_server_model.dart';
-
+import '../../../../core_new/database/data/models/new_server_model.dart';
 import '../repositories/new_settings_repository.dart';
 
 class NewSettings {
   final NewSettingsRepository repository;
 
   NewSettings(this.repository);
+
+  /// Inserts the provided `NewServerModel` into the database.
+  Future<int> addServer(NewServerModel server) {
+    return repository.addServer(server);
+  }
+
+  /// Deletes the server with the provided `id` from the database.
+  Future<void> deleteServer(int id) async {
+    await repository.deleteServer(id);
+  }
+
+  /// Returns a list of `NewServerModel` with all servers in the database.
+  Future<List<NewServerModel>> getAllServers() async {
+    return await repository.getAllServers();
+  }
 
   /// A list of user approved certificate hashes.
   ///
