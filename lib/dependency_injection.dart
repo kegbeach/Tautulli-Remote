@@ -9,6 +9,10 @@ import 'features_new/new_activity/data/repositories/new_activity_repository_impl
 import 'features_new/new_activity/domain/repositories/new_activity_repository.dart';
 import 'features_new/new_activity/domain/usecases/new_get_activity.dart';
 import 'features_new/new_activity/presentation/bloc/new_activity_bloc.dart';
+import 'features_new/new_image_url/data/datasources/new_image_url_data_source.dart';
+import 'features_new/new_image_url/data/repositories/new_image_url_repository_impl.dart';
+import 'features_new/new_image_url/domain/repositories/new_image_url_repository.dart';
+import 'features_new/new_image_url/domain/usecases/new_get_image_url.dart';
 import 'features_new/new_onesignal/data/datasources/new_onesignal_data_source.dart';
 import 'features_new/new_settings/data/datasources/new_register_device_data_source.dart';
 import 'features_new/new_settings/data/datasources/new_settings_data_source.dart';
@@ -27,7 +31,10 @@ Future<void> init() async {
   //! Features - Activity
   // Bloc
   sl.registerFactory(
-    () => NewActivityBloc(sl()),
+    () => NewActivityBloc(
+      getActivity: sl(),
+      getImageUrl: sl(),
+    ),
   );
 
   // Use case
@@ -46,6 +53,25 @@ Future<void> init() async {
   // Data sources
   sl.registerLazySingleton<NewActivityDataSource>(
     () => NewActivityDataSourceImpl(sl()),
+  );
+
+  //! Feature - Image URL
+  // Use case
+  sl.registerLazySingleton(
+    () => NewGetImageUrl(sl()),
+  );
+
+  // Repository
+  sl.registerLazySingleton<NewImageUrlRepository>(
+    () => NewImageUrlRepositoryImpl(
+      dataSource: sl(),
+      networkInfo: sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<NewImageUrlDataSource>(
+    () => NewImageUrlDataSourceImpl(sl()),
   );
 
   //! Features - OneSignal
@@ -112,6 +138,11 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<tautulli_api.NewGetGeoipLookup>(
     () => tautulli_api.NewGetGeoipLookupImpl(
+      sl(),
+    ),
+  );
+  sl.registerLazySingleton<tautulli_api.NewPmsImageProxy>(
+    () => tautulli_api.NewPmsImageProxyImpl(
       sl(),
     ),
   );
