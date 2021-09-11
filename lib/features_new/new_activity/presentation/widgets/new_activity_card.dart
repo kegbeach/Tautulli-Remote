@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core_new/enums/enums.dart' as enums;
 import '../../../../core_new/enums/media_type.dart';
 import '../../../../core_new/widgets/new_card_base.dart';
 import '../../../../core_new/widgets/new_platform_icon.dart';
@@ -8,6 +9,7 @@ import '../../data/models/new_activity_model.dart';
 import 'new_activity_card_icon_row.dart';
 import 'new_activity_card_info.dart';
 import 'new_progress_bar.dart';
+import 'new_status_poster_overlay.dart';
 import 'new_time_left.dart';
 
 class NewActivityCard extends StatelessWidget {
@@ -30,7 +32,14 @@ class NewActivityCard extends StatelessWidget {
               padding: const EdgeInsets.all(4),
               child: Row(
                 children: [
-                  NewPosterChooser(itemModel: activity),
+                  //* Poster
+                  Stack(
+                    children: [
+                      NewPosterChooser(itemModel: activity),
+                      if (activity.state != enums.State.playing)
+                        NewStatusPosterOverlay(state: activity.state),
+                    ],
+                  ),
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(left: 6),
