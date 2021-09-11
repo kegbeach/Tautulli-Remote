@@ -13,6 +13,7 @@ void main() {
   const int tServerTimeout = 15;
 
   NewServerModel tServerModel = NewServerModel(
+    sortIndex: 1,
     plexName: 'Plex',
     plexIdentifier: '123abc',
     tautulliId: '456def',
