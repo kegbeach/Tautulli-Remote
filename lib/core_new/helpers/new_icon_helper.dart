@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../enums/media_type.dart';
-import '../enums/state.dart' as enums;
+import '../enums/enums.dart' as enums;
 import '../enums/stream_decision.dart';
 import 'new_color_palette_helper.dart';
 
