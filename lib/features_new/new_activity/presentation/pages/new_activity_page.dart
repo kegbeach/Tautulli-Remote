@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 
 import '../../../../core_new/error/new_failure.dart';
+import '../../../../core_new/helpers/new_color_palette_helper.dart';
 import '../../../../core_new/helpers/new_failure_helper.dart';
 import '../../../../core_new/pages/status_page.dart';
 import '../../../../core_new/widgets/new_server_header.dart';
@@ -161,12 +162,28 @@ class _NewActivityViewState extends State<NewActivityView>
 
         return CustomScrollView(
           slivers: [
-            SliverGrid.count(
-              crossAxisCount: MediaQuery.of(context).size.width > 580 ? 2 : 1,
-              childAspectRatio: 2 / 0.75,
-              mainAxisSpacing: 4,
-              crossAxisSpacing: 4,
-              children: serverActivityWidgets,
+            SliverStickyHeader(
+              header: DecoratedBox(
+                decoration: const BoxDecoration(
+                  color: TautulliColorPalette.midnight,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 4,
+                  ),
+                  child: NewBandwidthHeader(
+                    bandwidthMap: serverData['bandwidth'],
+                  ),
+                ),
+              ),
+              sliver: SliverGrid.count(
+                crossAxisCount: MediaQuery.of(context).size.width > 580 ? 2 : 1,
+                childAspectRatio: 2 / 0.75,
+                mainAxisSpacing: 4,
+                crossAxisSpacing: 4,
+                children: serverActivityWidgets,
+              ),
             ),
           ],
         );
@@ -219,6 +236,7 @@ class _NewActivityViewState extends State<NewActivityView>
       activityWidgetList.add(
         SliverStickyHeader(
           header: NewServerHeader(
+            backgroundColor: TautulliColorPalette.midnight,
             serverName: serverData['plex_name'],
             loadingState: serverData['loadingState'],
             secondaryWidget: Padding(
@@ -233,14 +251,6 @@ class _NewActivityViewState extends State<NewActivityView>
             crossAxisSpacing: 4,
             children: serverActivityWidgets,
           ),
-          // sliver: SliverList(
-          //   delegate: SliverChildBuilderDelegate(
-          //     (context, index) {
-          //       return serverActivityWidgets[index];
-          //     },
-          //     childCount: serverActivityWidgets.length,
-          //   ),
-          // ),
         ),
       );
     });
