@@ -3,4 +3,5 @@ enum State {
   error,
   paused,
   playing,
+  UNKNOWN,
 }

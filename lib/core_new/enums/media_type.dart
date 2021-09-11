@@ -9,4 +9,5 @@ enum MediaType {
   season,
   show,
   track,
+  UNKNOWN,
 }
