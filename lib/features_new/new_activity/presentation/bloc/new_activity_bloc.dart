@@ -9,7 +9,9 @@ import '../../../../core_new/api/tautulli_api/api_response_data.dart';
 import '../../../../core_new/database/data/models/new_server_model.dart';
 import '../../../../core_new/enums/loading_state.dart';
 import '../../../../core_new/enums/location.dart';
+import '../../../../core_new/enums/media_type.dart';
 import '../../../../core_new/error/new_failure.dart';
+import '../../../new_image_url/domain/usecases/new_get_image_url.dart';
 import '../../data/models/new_activity_model.dart';
 import '../../domain/usecases/new_get_activity.dart';
 
@@ -20,8 +22,12 @@ Map<String, Map<String, dynamic>> _activityMapCache = {};
 
 class NewActivityBloc extends Bloc<NewActivityEvent, NewActivityState> {
   final NewGetActivity getActivity;
+  final NewGetImageUrl getImageUrl;
 
-  NewActivityBloc(this.getActivity) : super(NewActivityInitial());
+  NewActivityBloc({
+    required this.getActivity,
+    required this.getImageUrl,
+  }) : super(NewActivityInitial());
 
   @override
   Stream<NewActivityState> mapEventToState(
@@ -85,6 +91,12 @@ class NewActivityBloc extends Bloc<NewActivityEvent, NewActivityState> {
           int totalLanBandwidth = 0;
           int totalWanBandwidth = 0;
 
+          List<NewActivityModel> activityListWithPosters =
+              await _fetchPosterUrls(
+            activityList: response.data,
+            tautulliId: event.tautulliId,
+          );
+
           for (NewActivityModel activity in response.data) {
             // Add bandwidth values to total bandwidths.
             if (isNotBlank(activity.bandwidth)) {
@@ -106,7 +118,7 @@ class NewActivityBloc extends Bloc<NewActivityEvent, NewActivityState> {
           _activityMapCache[event.tautulliId] = {
             'plex_name': event.plexName,
             'loadingState': LoadingState.success,
-            'activityList': response.data,
+            'activityList': activityListWithPosters,
             'failure': null,
             'bandwidth': {
               'lan': totalLanBandwidth,
@@ -185,5 +197,72 @@ class NewActivityBloc extends Bloc<NewActivityEvent, NewActivityState> {
         ),
       );
     }
+  }
+
+  Future<List<NewActivityModel>> _fetchPosterUrls({
+    required List<NewActivityModel> activityList,
+    required String tautulliId,
+  }) async {
+    List<NewActivityModel> updatedList = [];
+
+    for (NewActivityModel activity in activityList) {
+      //* Fetch and assign image URLs
+      String? posterImg;
+      int? posterRatingKey;
+      String? posterFallback;
+
+      // Assign values for poster URL
+      switch (activity.mediaType) {
+        case (MediaType.movie):
+          posterImg = activity.thumb;
+          posterRatingKey = activity.ratingKey;
+          if (activity.live) {
+            posterFallback = 'poster';
+          } else {
+            posterFallback = 'poster-live';
+          }
+          break;
+        case (MediaType.episode):
+          posterImg = activity.grandparentThumb;
+          posterRatingKey = activity.grandparentRatingKey;
+          if (activity.live) {
+            posterFallback = 'poster';
+          } else {
+            posterFallback = 'poster-live';
+          }
+          break;
+        case (MediaType.track):
+          posterImg = activity.thumb;
+          posterRatingKey = activity.parentRatingKey;
+          posterFallback = 'cover';
+          break;
+        case (MediaType.clip):
+          posterImg = activity.thumb;
+          posterRatingKey = activity.ratingKey;
+          posterFallback = 'poster';
+          break;
+        default:
+          posterRatingKey = activity.ratingKey;
+      }
+
+      // Attempt to get poster URL
+      final failureOrPosterUrl = await getImageUrl(
+        tautulliId: tautulliId,
+        img: posterImg,
+        ratingKey: posterRatingKey,
+        fallback: posterFallback,
+      );
+
+      failureOrPosterUrl.fold(
+        (failure) {
+          //TODO: Log poster URL failure
+        },
+        (url) {
+          updatedList.add(activity.copyWith(posterUrl: url));
+        },
+      );
+    }
+
+    return updatedList;
   }
 }
