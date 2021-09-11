@@ -66,7 +66,9 @@ class NewValueHelper {
               case ('cellular'):
                 return Location.cellular;
               default:
-                throw const FormatException();
+                //TODO: Log case failure
+                print('Failed to cast $value to $type, casting to UNKNOWN');
+                return Location.UNKNOWN;
             }
 
           case (CastType.mediaType):
@@ -92,7 +94,9 @@ class NewValueHelper {
               case ('track'):
                 return MediaType.track;
               default:
-                throw const FormatException();
+                //TODO: Log case failure
+                print('Failed to cast $value to $type, casting to UNKNOWN');
+                return MediaType.UNKNOWN;
             }
 
           case (CastType.state):
@@ -106,7 +110,9 @@ class NewValueHelper {
               case ('playing'):
                 return State.playing;
               default:
-                throw const FormatException();
+                //TODO: Log case failure
+                print('Failed to cast $value to $type, casting to UNKNOWN');
+                return State.UNKNOWN;
             }
 
           case (CastType.streamDecision):
@@ -118,7 +124,9 @@ class NewValueHelper {
               case ('transcode'):
                 return StreamDecision.transcode;
               default:
-                throw const FormatException();
+                //TODO: Log case failure
+                print('Failed to cast $value to $type, casting to UNKNOWN');
+                return StreamDecision.UNKNOWN;
             }
 
           case (CastType.subtitleDecision):
@@ -130,7 +138,9 @@ class NewValueHelper {
               case ('transcode'):
                 return SubtitleDecision.transcode;
               default:
-                throw const FormatException();
+                //TODO: Log case failure
+                print('Failed to cast $value to $type, casting to UNKNOWN');
+                return SubtitleDecision.UNKNOWN;
             }
 
           case (CastType.videoDynamicRange):
@@ -142,13 +152,15 @@ class NewValueHelper {
               case ('SDR'):
                 return VideoDynamicRange.SDR;
               default:
-                throw const FormatException();
+                //TODO: Log case failure
+                print('Failed to cast $value to $type, casting to UNKNOWN');
+                return VideoDynamicRange.UNKNOWN;
             }
         }
       }
     } catch (e) {
       //TODO: Log error
-      print('Failed top cast $value to $type');
+      print('[$e] Failed to cast $value to $type');
       rethrow;
     }
   }
