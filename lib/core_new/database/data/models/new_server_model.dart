@@ -5,7 +5,7 @@ import '../../domain/entities/new_server.dart';
 class NewServerModel extends NewServer {
   NewServerModel({
     int? id,
-    int? sortIndex,
+    required int sortIndex,
     required String plexName,
     required String plexIdentifier,
     required String tautulliId,

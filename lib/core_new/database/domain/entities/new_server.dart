@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 
 class NewServer extends Equatable {
   final int? id;
-  final int? sortIndex;
+  final int sortIndex;
   final String plexName;
   final String plexIdentifier;
   final String tautulliId;
@@ -23,7 +23,7 @@ class NewServer extends Equatable {
 
   NewServer({
     this.id,
-    this.sortIndex,
+    required this.sortIndex,
     required this.plexName,
     required this.plexIdentifier,
     required this.tautulliId,
