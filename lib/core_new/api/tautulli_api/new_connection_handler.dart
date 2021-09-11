@@ -93,7 +93,7 @@ class NewConnectionHandlerImpl implements NewConnectionHandler {
     //
     // If that again fails throw the error.
     try {
-      responseData = callTautulli(
+      responseData = await callTautulli(
         connectionProtocol:
             primaryActive ? connectionProtocol! : secondaryConnectionProtocol!,
         connectionDomain:
@@ -120,7 +120,7 @@ class NewConnectionHandlerImpl implements NewConnectionHandler {
           // Swap the active connection
           primaryActive = !primaryActive;
 
-          responseData = callTautulli(
+          responseData = await callTautulli(
             connectionProtocol: primaryActive
                 ? connectionProtocol!
                 : secondaryConnectionProtocol!,
