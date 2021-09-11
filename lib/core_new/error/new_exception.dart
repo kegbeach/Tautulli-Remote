@@ -24,3 +24,6 @@ class ServerNotFoundException implements Exception {}
 
 /// Throw when trying to add a Tautulli server does not meet the min version.
 class ServerVersionException implements Exception {}
+
+/// Throw when required settings are missing.
+class SettingsException implements Exception {}
