@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 class NewCardBase extends StatelessWidget {
   final Widget child;
   final String? backgroundImageUrl;
+  final Widget? backgroundWidget;
   final Color? backgroundColor;
   final EdgeInsets? padding;
   final double? height;
@@ -14,6 +15,7 @@ class NewCardBase extends StatelessWidget {
     Key? key,
     required this.child,
     this.backgroundImageUrl,
+    this.backgroundWidget,
     this.backgroundColor,
     this.padding,
     this.height,
@@ -49,6 +51,7 @@ class NewCardBase extends StatelessWidget {
                 Container(
                   color: Colors.black.withOpacity(0.4),
                 ),
+              if (backgroundWidget != null) backgroundWidget!,
               Padding(
                 padding: padding ?? const EdgeInsets.all(4),
                 child: child,
