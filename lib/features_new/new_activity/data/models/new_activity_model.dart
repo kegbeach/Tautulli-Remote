@@ -9,6 +9,7 @@ import '../../domain/entities/new_activity.dart';
 
 class NewActivityModel extends NewActivity {
   NewActivityModel({
+    String? audioChannelLayout,
     String? audioCodec,
     String? bandwidth,
     String? channelCallSign,
@@ -80,6 +81,7 @@ class NewActivityModel extends NewActivity {
     int? year,
     String? posterUrl,
   }) : super(
+          audioChannelLayout: audioChannelLayout,
           audioCodec: audioCodec,
           bandwidth: bandwidth,
           channelCallSign: channelCallSign,
@@ -155,6 +157,7 @@ class NewActivityModel extends NewActivity {
     required String posterUrl,
   }) {
     return NewActivityModel(
+      audioChannelLayout: this.audioChannelLayout,
       audioCodec: this.audioCodec,
       bandwidth: this.bandwidth,
       channelCallSign: this.channelCallSign,
@@ -229,6 +232,10 @@ class NewActivityModel extends NewActivity {
 
   factory NewActivityModel.fromJson(Map<String, dynamic> json) {
     return NewActivityModel(
+      audioChannelLayout: NewValueHelper.cast(
+        json['audio_channel_layout'],
+        CastType.string,
+      ),
       audioCodec: NewValueHelper.cast(
         json['audio_codec'],
         CastType.string,

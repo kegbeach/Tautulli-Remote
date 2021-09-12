@@ -8,6 +8,7 @@ import '../../../../core_new/enums/subtitle_decision.dart';
 import '../../../../core_new/enums/video_dynamic_range.dart';
 
 class NewActivity extends Equatable {
+  final String? audioChannelLayout;
   final String? audioCodec;
   final String? bandwidth;
   final String? channelCallSign;
@@ -80,6 +81,7 @@ class NewActivity extends Equatable {
   final String? posterUrl;
 
   NewActivity({
+    this.audioChannelLayout,
     this.audioCodec,
     this.bandwidth,
     this.channelCallSign,
@@ -153,6 +155,7 @@ class NewActivity extends Equatable {
 
   @override
   List<Object?> get props => [
+        audioChannelLayout,
         audioCodec,
         bandwidth,
         channelCallSign,
