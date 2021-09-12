@@ -18,7 +18,7 @@ import '../../domain/usecases/new_get_activity.dart';
 part 'new_activity_event.dart';
 part 'new_activity_state.dart';
 
-Map<String, Map<String, dynamic>> _activityMapCache = {};
+Map<String, Map<String, dynamic>> activityMapCache = {};
 
 class NewActivityBloc extends Bloc<NewActivityEvent, NewActivityState> {
   final NewGetActivity getActivity;
@@ -42,25 +42,25 @@ class NewActivityBloc extends Bloc<NewActivityEvent, NewActivityState> {
         //TODO: Yield that there are no servers
         yield NewActivityFailure(MissingServerFailure());
       } else {
-        // Add servers in serverList that are not in _activityMapCache.
+        // Add servers in serverList that are not in activityMapCache.
         _addNewServers(serverList);
 
-        // Remove servers from _activityMapCache that are not in serverList.
+        // Remove servers from activityMapCache that are not in serverList.
         _removeOldServers(serverList);
 
-        // Sort _activityMapCache using the sortIndex of each server.
+        // Sort activityMapCache using the sortIndex of each server.
         _sortServers(serverList);
 
         // Remove servers from server list with LoadingState.inProgress.
         serverList.removeWhere(
           (server) =>
-              _activityMapCache[server.tautulliId]!['loadingState'] ==
+              activityMapCache[server.tautulliId]!['loadingState'] ==
               LoadingState.inProgress,
         );
 
         // Set remaining servers to LoadingState.inProgress.
-        for (String key in _activityMapCache.keys.toList()) {
-          _activityMapCache[key]!['loadingState'] = LoadingState.inProgress;
+        for (String key in activityMapCache.keys.toList()) {
+          activityMapCache[key]!['loadingState'] = LoadingState.inProgress;
         }
 
         // Load each server with a unique event of NewActivityLoadServer.
@@ -72,7 +72,7 @@ class NewActivityBloc extends Bloc<NewActivityEvent, NewActivityState> {
         (failure) async* {
           //TODO: Log failure using event.plexName
 
-          _activityMapCache[event.tautulliId] = {
+          activityMapCache[event.tautulliId] = {
             'plex_name': event.plexName,
             'loadingState': LoadingState.failure,
             'activityList': <NewActivityModel>[],
@@ -83,7 +83,7 @@ class NewActivityBloc extends Bloc<NewActivityEvent, NewActivityState> {
             }
           };
           yield NewActivityLoaded(
-            activityMap: _activityMapCache,
+            activityMap: activityMapCache,
             loadedAt: DateTime.now(),
           );
         },
@@ -115,7 +115,7 @@ class NewActivityBloc extends Bloc<NewActivityEvent, NewActivityState> {
             }
           }
 
-          _activityMapCache[event.tautulliId] = {
+          activityMapCache[event.tautulliId] = {
             'plex_name': event.plexName,
             'loadingState': LoadingState.success,
             'activityList': activityListWithPosters,
@@ -127,7 +127,7 @@ class NewActivityBloc extends Bloc<NewActivityEvent, NewActivityState> {
           };
 
           yield NewActivityLoaded(
-            activityMap: _activityMapCache,
+            activityMap: activityMapCache,
             loadedAt: DateTime.now(),
           );
         },
@@ -138,8 +138,8 @@ class NewActivityBloc extends Bloc<NewActivityEvent, NewActivityState> {
   /// Add servers from serverList to _serverMapCache if they are missing.
   void _addNewServers(List<NewServerModel> serverList) {
     for (NewServerModel server in serverList) {
-      if (!_activityMapCache.containsKey(server.tautulliId)) {
-        _activityMapCache[server.tautulliId] = {
+      if (!activityMapCache.containsKey(server.tautulliId)) {
+        activityMapCache[server.tautulliId] = {
           'activityList': <NewActivityModel>[],
           'plex_name': server.plexName,
           'loadingState': LoadingState.initial,
@@ -153,10 +153,10 @@ class NewActivityBloc extends Bloc<NewActivityEvent, NewActivityState> {
     }
   }
 
-  /// Remove servers from _activityMapCache that are not in serverList.
+  /// Remove servers from activityMapCache that are not in serverList.
   void _removeOldServers(List<NewServerModel> serverList) {
     List toRemove = [];
-    for (String tautulliId in _activityMapCache.keys) {
+    for (String tautulliId in activityMapCache.keys) {
       int item = serverList.indexWhere(
         (server) => server.tautulliId == tautulliId,
       );
@@ -164,22 +164,22 @@ class NewActivityBloc extends Bloc<NewActivityEvent, NewActivityState> {
         toRemove.add(tautulliId);
       }
     }
-    _activityMapCache.removeWhere((key, value) => toRemove.contains(key));
+    activityMapCache.removeWhere((key, value) => toRemove.contains(key));
   }
 
-  /// Sort servers in _activityMapCache by the server sort index.
+  /// Sort servers in activityMapCache by the server sort index.
   ///
   /// Sort serverList by each server's sortIndex. Then add each item from the
-  /// _activityMapCache into sortedMap following the sort of serverList.
+  /// activityMapCache into sortedMap following the sort of serverList.
   void _sortServers(List<NewServerModel> serverList) {
     serverList.sort((a, b) => a.sortIndex.compareTo(b.sortIndex));
     Map<String, Map<String, dynamic>> sortedMap = {};
 
     for (NewServerModel server in serverList) {
-      sortedMap[server.tautulliId] = _activityMapCache[server.tautulliId]!;
+      sortedMap[server.tautulliId] = activityMapCache[server.tautulliId]!;
     }
 
-    _activityMapCache = sortedMap;
+    activityMapCache = sortedMap;
   }
 
   /// Trigger unique NewActivityLoadServer events for each server in serverList.
