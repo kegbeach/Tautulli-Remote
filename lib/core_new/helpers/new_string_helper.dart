@@ -1,6 +1,6 @@
 import 'package:quiver/strings.dart';
 
-class StringHelper {
+class NewStringHelper {
   /// Capitalizes the first letter of a string.
   ///
   /// Throws an [ArgumentError] if string is null.

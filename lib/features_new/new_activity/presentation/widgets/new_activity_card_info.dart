@@ -55,7 +55,7 @@ class NewActivityCardInfo extends StatelessWidget {
                         : activity.mediaType == MediaType.clip
                             ? _ActivityCardInfoH3(
                                 text:
-                                    '(${StringHelper.capitalize(activity.subType)})',
+                                    '(${NewStringHelper.capitalize(activity.subType)})',
                               )
                             : const SizedBox(height: 0, width: 0),
       ],
