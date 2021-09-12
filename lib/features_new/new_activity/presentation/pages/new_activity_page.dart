@@ -16,6 +16,7 @@ import '../../../../dependency_injection.dart' as di;
 import '../../../new_settings/presentation/bloc/new_settings_bloc.dart';
 import '../../data/models/new_activity_model.dart';
 import '../bloc/new_activity_bloc.dart';
+import '../bloc/new_geo_ip_bloc.dart';
 import '../widgets/new_activity_card.dart';
 import '../widgets/new_bandwidth_header.dart';
 
@@ -29,11 +30,20 @@ class NewActivityPage extends StatelessWidget {
     return BlocBuilder<NewSettingsBloc, NewSettingsState>(
       builder: (context, settingsState) {
         if (settingsState is NewSettingsSuccess) {
-          return BlocProvider(
-            create: (context) => di.sl<NewActivityBloc>()
-              ..add(
-                NewActivityLoad(settingsState.serverList),
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (context) => di.sl<NewActivityBloc>()
+                  ..add(
+                    NewActivityLoad(settingsState.serverList),
+                  ),
               ),
+              // Provide GeoIpBloc at the activity page level so all activity
+              // details use the same bloc value.
+              BlocProvider(
+                create: (context) => di.sl<NewGeoIpBloc>(),
+              ),
+            ],
             child: const NewActivityView(),
           );
         }
@@ -156,7 +166,10 @@ class _NewActivityViewState extends State<NewActivityView>
       if (activityList.isNotEmpty) {
         for (NewActivityModel activity in activityList) {
           serverActivityWidgets.add(
-            NewActivityCard(activity: activity),
+            NewActivityCard(
+              activity: activity,
+              tautulliId: activityMap.keys.first,
+            ),
           );
         }
 
@@ -220,7 +233,10 @@ class _NewActivityViewState extends State<NewActivityView>
         if (activityList.isNotEmpty) {
           for (NewActivityModel activity in activityList) {
             serverActivityWidgets.add(
-              NewActivityCard(activity: activity),
+              NewActivityCard(
+                activity: activity,
+                tautulliId: serverId,
+              ),
             );
           }
         } else {
