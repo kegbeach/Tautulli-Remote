@@ -9,8 +9,8 @@ import 'package:tautulli_remote/features_new/new_activity/domain/usecases/new_ge
 class MockGeoIpRepository extends Mock implements NewGeoIpRepository {}
 
 void main() {
-  final mockActivityRepository = MockGeoIpRepository();
-  final usecase = NewGetGeoIp(mockActivityRepository);
+  final mockGetGeoIpRepository = MockGeoIpRepository();
+  final usecase = NewGetGeoIp(mockGetGeoIpRepository);
 
   const tTautulliId = 'jkl';
   const tIpAddress = '10.0.0.1';
@@ -31,7 +31,7 @@ void main() {
     'should get GeoIp from API',
     () async {
       // arrange
-      when(() => mockActivityRepository.getGeoIp(
+      when(() => mockGetGeoIpRepository.getGeoIp(
             tautulliId: any(named: 'tautulliId'),
             ipAddress: any(named: 'ipAddress'),
           )).thenAnswer((_) async => Right(tApiResponseData));
@@ -42,11 +42,11 @@ void main() {
       );
       // assert
       expect(response, Right(tApiResponseData));
-      verify(() => mockActivityRepository.getGeoIp(
+      verify(() => mockGetGeoIpRepository.getGeoIp(
             tautulliId: tTautulliId,
             ipAddress: tIpAddress,
           ));
-      verifyNoMoreInteractions(mockActivityRepository);
+      verifyNoMoreInteractions(mockGetGeoIpRepository);
     },
   );
 }
