@@ -9,7 +9,7 @@ import '../../domain/usecases/new_get_geo_ip.dart';
 part 'new_geo_ip_event.dart';
 part 'new_geo_ip_state.dart';
 
-Map<String, NewGeoIp> _geoIpMapCache = {};
+Map<String, NewGeoIp> geoIpMapCache = {};
 
 class NewGeoIpBloc extends Bloc<NewGeoIpEvent, NewGeoIpState> {
   final NewGetGeoIp getGeoIp;
@@ -21,8 +21,8 @@ class NewGeoIpBloc extends Bloc<NewGeoIpEvent, NewGeoIpState> {
     NewGeoIpEvent event,
   ) async* {
     if (event is NewGeoIpLoad) {
-      if (_geoIpMapCache.containsKey(event.ipAddress)) {
-        yield NewGeoIpSuccess(geoIpMap: _geoIpMapCache);
+      if (geoIpMapCache.containsKey(event.ipAddress)) {
+        yield NewGeoIpSuccess(geoIpMap: geoIpMapCache);
       } else {
         yield NewGeoIpInProgress();
 
@@ -36,12 +36,12 @@ class NewGeoIpBloc extends Bloc<NewGeoIpEvent, NewGeoIpState> {
             //TODO: Log geo ip failure
             print('Geo IP failed');
 
-            yield NewGeoIpFailure(geoIpMap: _geoIpMapCache);
+            yield NewGeoIpFailure(geoIpMap: geoIpMapCache);
           },
           (response) async* {
-            _geoIpMapCache[event.ipAddress] = response.data;
+            geoIpMapCache[event.ipAddress] = response.data;
 
-            yield NewGeoIpSuccess(geoIpMap: _geoIpMapCache);
+            yield NewGeoIpSuccess(geoIpMap: geoIpMapCache);
           },
         );
       }
