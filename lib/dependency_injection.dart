@@ -5,10 +5,15 @@ import 'core_new/device_info/device_info.dart';
 import 'core_new/local_storage/local_storage.dart';
 import 'core_new/network_info/new_network_info.dart';
 import 'features_new/new_activity/data/datasources/new_activity_data_source.dart';
+import 'features_new/new_activity/data/datasources/new_geo_ip_data_source.dart';
 import 'features_new/new_activity/data/repositories/new_activity_repository_impl.dart';
+import 'features_new/new_activity/data/repositories/new_geo_ip_repository_impl.dart';
 import 'features_new/new_activity/domain/repositories/new_activity_repository.dart';
+import 'features_new/new_activity/domain/repositories/new_geo_ip_repository.dart';
 import 'features_new/new_activity/domain/usecases/new_get_activity.dart';
+import 'features_new/new_activity/domain/usecases/new_get_geo_ip.dart';
 import 'features_new/new_activity/presentation/bloc/new_activity_bloc.dart';
+import 'features_new/new_activity/presentation/bloc/new_geo_ip_bloc.dart';
 import 'features_new/new_image_url/data/datasources/new_image_url_data_source.dart';
 import 'features_new/new_image_url/data/repositories/new_image_url_repository_impl.dart';
 import 'features_new/new_image_url/domain/repositories/new_image_url_repository.dart';
@@ -36,10 +41,16 @@ Future<void> init() async {
       getImageUrl: sl(),
     ),
   );
+  sl.registerFactory(
+    () => NewGeoIpBloc(sl()),
+  );
 
   // Use case
   sl.registerLazySingleton(
     () => NewGetActivity(sl()),
+  );
+  sl.registerLazySingleton(
+    () => NewGetGeoIp(sl()),
   );
 
   // Repository
@@ -49,10 +60,19 @@ Future<void> init() async {
       networkInfo: sl(),
     ),
   );
+  sl.registerLazySingleton<NewGeoIpRepository>(
+    () => NewGeoIpRepositoryImpl(
+      dataSource: sl(),
+      networkInfo: sl(),
+    ),
+  );
 
   // Data sources
   sl.registerLazySingleton<NewActivityDataSource>(
     () => NewActivityDataSourceImpl(sl()),
+  );
+  sl.registerLazySingleton<NewGeoIpDataSource>(
+    () => NewGeoIpDataSourceImpl(sl()),
   );
 
   //! Feature - Image URL
