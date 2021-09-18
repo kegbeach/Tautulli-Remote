@@ -1,5 +1,7 @@
 // @dart=2.9
 
+import 'dart:convert';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,8 +13,12 @@ import 'package:validators/validators.dart';
 
 import '../../../../core/database/data/models/server_model.dart';
 import '../../../../core/helpers/color_palette_helper.dart';
+import '../../../../core/widgets/list_header.dart';
 import '../../../../translations/locale_keys.g.dart';
 import '../bloc/settings_bloc.dart';
+import '../widgets/delete_dialog.dart';
+import '../widgets/header_config_dialog.dart';
+import '../widgets/header_type_dialog.dart';
 
 class ServerSettingsPage extends StatelessWidget {
   final int id;
@@ -43,9 +49,11 @@ class ServerSettingsPage extends StatelessWidget {
               color: TautulliColorPalette.not_white,
             ),
             onPressed: () async {
-              bool delete = await _showDeleteServerDialog(
+              bool delete = await _showDeleteDialog(
                 context: context,
-                plexName: plexName,
+                title: LocaleKeys.settings_server_delete_dialog_title.tr(
+                  args: [plexName],
+                ),
               );
               if (delete) {
                 settingsBloc.add(
@@ -66,6 +74,8 @@ class ServerSettingsPage extends StatelessWidget {
             try {
               final ServerModel server =
                   state.serverList.firstWhere((item) => item.id == id);
+              server.customHeaders.sort((a, b) => a.key.compareTo(b.key));
+
               return ListView(
                 children: <Widget>[
                   ListTile(
@@ -175,10 +185,7 @@ class ServerSettingsPage extends StatelessWidget {
                     onTap: () {
                       _buildSecondaryConnectionAddressSettingsDialog(
                         context: context,
-                        id: server.id,
-                        plexName: plexName,
-                        secondaryConnectionAddress:
-                            server.secondaryConnectionAddress,
+                        server: server,
                         controller: _secondaryConnectionAddressController,
                         settingsBloc: settingsBloc,
                       );
@@ -251,6 +258,135 @@ class ServerSettingsPage extends StatelessWidget {
                       }
                     },
                   ),
+                  if (server.customHeaders.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: ListHeader(
+                        headingText:
+                            LocaleKeys.settings_server_custom_http_headers.tr(),
+                      ),
+                    ),
+                  if (server.customHeaders.isNotEmpty)
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: server.customHeaders
+                          .map(
+                            (header) => ListTile(
+                              title: Text(header.key),
+                              subtitle: Text(
+                                !maskSensitiveInfo
+                                    ? header.value
+                                    : '*${LocaleKeys.masked_header_key.tr()}*',
+                              ),
+                              onTap: () {
+                                final bool isBasicAuth =
+                                    header.key == 'Authorization' &&
+                                        header.value.startsWith('Basic ');
+
+                                if (isBasicAuth) {
+                                  try {
+                                    final List<String> creds = utf8
+                                        .decode(base64Decode(
+                                            header.value.substring(6)))
+                                        .split(':');
+
+                                    return showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return HeaderConfigDialog(
+                                          tautulliId: server.tautulliId,
+                                          basicAuth: true,
+                                          existingKey: creds[0],
+                                          existingValue: creds[1],
+                                        );
+                                      },
+                                    );
+                                  } catch (_) {
+                                    return showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return HeaderConfigDialog(
+                                          tautulliId: server.tautulliId,
+                                          existingKey: header.key,
+                                          existingValue: header.value,
+                                          currentHeaders: server.customHeaders,
+                                        );
+                                      },
+                                    );
+                                  }
+                                } else {
+                                  return showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return HeaderConfigDialog(
+                                        tautulliId: server.tautulliId,
+                                        existingKey: header.key,
+                                        existingValue: header.value,
+                                        currentHeaders: server.customHeaders,
+                                      );
+                                    },
+                                  );
+                                }
+                              },
+                              trailing: GestureDetector(
+                                onTap: () async {
+                                  final delete = await _showDeleteDialog(
+                                    context: context,
+                                    title: LocaleKeys
+                                        .settings_header_delete_alert_title
+                                        .tr(
+                                      args: [header.key],
+                                    ),
+                                  );
+
+                                  if (delete) {
+                                    context.read<SettingsBloc>().add(
+                                          SettingsRemoveCustomHeader(
+                                            tautulliId: server.tautulliId,
+                                            key: header.key,
+                                          ),
+                                        );
+                                  }
+                                },
+                                child: const FaIcon(
+                                  FontAwesomeIcons.trashAlt,
+                                  color: TautulliColorPalette.not_white,
+                                ),
+                              ),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                      top: state.serverList.isEmpty ? 8 : 0,
+                      left: 16,
+                      right: 16,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              primary: TautulliColorPalette.gunmetal,
+                            ),
+                            onPressed: () {
+                              return showDialog(
+                                context: context,
+                                builder: (context) => HeaderTypeDialog(
+                                  tautulliId: server.tautulliId,
+                                  currentHeaders: server.customHeaders,
+                                ),
+                              );
+                            },
+                            child: const Text(
+                              LocaleKeys.button_settings_add_header,
+                            ).tr(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 8.0),
                     child: Divider(
@@ -279,7 +415,7 @@ class ServerSettingsPage extends StatelessWidget {
             } catch (error) {
               return const Text(
                 LocaleKeys.settings_server_error,
-              ).tr(args: [error]);
+              ).tr(args: [error.toString()]);
             }
           }
           return const Text('Bloc error');
@@ -359,9 +495,7 @@ Future _buildPrimaryConnectionAddressSettingsDialog({
 
 Future _buildSecondaryConnectionAddressSettingsDialog({
   @required BuildContext context,
-  @required int id,
-  @required String plexName,
-  @required String secondaryConnectionAddress,
+  @required ServerModel server,
   @required TextEditingController controller,
   @required SettingsBloc settingsBloc,
 }) {
@@ -370,8 +504,8 @@ Future _buildSecondaryConnectionAddressSettingsDialog({
     builder: (context) {
       final _secondaryConnectionFormKey = GlobalKey<FormState>();
 
-      if (secondaryConnectionAddress != null) {
-        controller.text = secondaryConnectionAddress;
+      if (server.secondaryConnectionAddress != null) {
+        controller.text = server.secondaryConnectionAddress;
       }
       return AlertDialog(
         title: const Text(LocaleKeys.settings_secondary_connection_dialog_title)
@@ -409,10 +543,19 @@ Future _buildSecondaryConnectionAddressSettingsDialog({
             child: const Text(LocaleKeys.button_save).tr(),
             onPressed: () {
               if (_secondaryConnectionFormKey.currentState.validate()) {
+                if (isEmpty(controller.text) && !server.primaryActive) {
+                  settingsBloc.add(
+                    SettingsUpdatePrimaryActive(
+                      tautulliId: server.tautulliId,
+                      primaryActive: true,
+                    ),
+                  );
+                }
+
                 settingsBloc.add(
                   SettingsUpdateSecondaryConnection(
-                    id: id,
-                    plexName: plexName,
+                    id: server.id,
+                    plexName: server.plexName,
                     secondaryConnectionAddress: controller.text,
                   ),
                 );
@@ -426,35 +569,16 @@ Future _buildSecondaryConnectionAddressSettingsDialog({
   );
 }
 
-Future<bool> _showDeleteServerDialog({
+Future<bool> _showDeleteDialog({
   @required BuildContext context,
-  @required String plexName,
+  @required String title,
 }) {
   return showDialog(
     context: context,
     barrierDismissible: false,
     builder: (context) {
-      return AlertDialog(
-        title: const Text(
-          LocaleKeys.settings_server_delete_dialog_title,
-        ).tr(args: [plexName]),
-        actions: <Widget>[
-          TextButton(
-            child: const Text(LocaleKeys.button_cancel).tr(),
-            onPressed: () {
-              Navigator.of(context).pop(false);
-            },
-          ),
-          TextButton(
-            child: const Text(LocaleKeys.button_confirm).tr(),
-            style: TextButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
-            onPressed: () {
-              Navigator.of(context).pop(true);
-            },
-          ),
-        ],
+      return DeleteDialog(
+        titleWidget: Text(title),
       );
     },
   );

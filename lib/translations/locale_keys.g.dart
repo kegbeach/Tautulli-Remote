@@ -425,4 +425,26 @@ abstract class LocaleKeys {
       'privacy_notification_permission_dialog_title';
   static const privacy_notification_permission_dialog_content =
       'privacy_notification_permission_dialog_content';
+  static const button_help = 'button_help';
+  static const button_register_add_header = 'button_register_add_header';
+  static const button_settings_add_header = 'button_settings_add_header';
+  static const settings_header_basic_auth = 'settings_header_basic_auth';
+  static const settings_server_custom_http_headers =
+      'settings_server_custom_http_headers';
+  static const settings_header_input_username =
+      'settings_header_input_username';
+  static const settings_header_input_password =
+      'settings_header_input_password';
+  static const settings_header_input_header_key =
+      'settings_header_input_header_key';
+  static const settings_header_input_header_value =
+      'settings_header_input_header_value';
+  static const masked_header_key = 'masked_header_key';
+  static const settings_header_delete_alert_title =
+      'settings_header_delete_alert_title';
+  static const settings_validation_blank = 'settings_validation_blank';
+  static const settings_validation_header_key_exists =
+      'settings_validation_header_key_exists';
+  static const settings_header_basic_auth_disabled =
+      'settings_header_basic_auth_disabled';
 }
