@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -12,19 +10,24 @@ part 'new_settings_state.dart';
 class NewSettingsBloc extends Bloc<NewSettingsEvent, NewSettingsState> {
   final NewSettings settings;
 
-  NewSettingsBloc(this.settings) : super(NewSettingsInitial());
-  @override
-  Stream<NewSettingsState> mapEventToState(
-    NewSettingsEvent event,
-  ) async* {
-    if (event is NewSettingsLoad) {
-      yield NewSettingsInProgress();
+  NewSettingsBloc(this.settings) : super(NewSettingsInitial()) {
+    on<NewSettingsLoad>((event, emit) => _onNewSettingsLoad(event, emit));
+  }
 
-      final List<NewServerModel> serverList = await settings.getAllServers();
+  void _onNewSettingsLoad(
+    NewSettingsLoad event,
+    Emitter<NewSettingsState> emit,
+  ) async {
+    emit(
+      NewSettingsInProgress(),
+    );
 
-      yield NewSettingsSuccess(
+    final List<NewServerModel> serverList = await settings.getAllServers();
+
+    emit(
+      NewSettingsSuccess(
         serverList: serverList,
-      );
-    }
+      ),
+    );
   }
 }

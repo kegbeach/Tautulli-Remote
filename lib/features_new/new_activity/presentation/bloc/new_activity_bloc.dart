@@ -27,112 +27,124 @@ class NewActivityBloc extends Bloc<NewActivityEvent, NewActivityState> {
   NewActivityBloc({
     required this.getActivity,
     required this.getImageUrl,
-  }) : super(NewActivityInitial());
+  }) : super(NewActivityInitial()) {
+    on<NewActivityLoad>((event, emit) => _onNewActivityLoad(event, emit));
+    on<NewActivityLoadServer>(
+      (event, emit) => _onNewActivityLoadServer(event, emit),
+    );
+  }
 
-  @override
-  Stream<NewActivityState> mapEventToState(
-    NewActivityEvent event,
-  ) async* {
-    final currentState = state;
+  void _onNewActivityLoad(
+    NewActivityLoad event,
+    Emitter<NewActivityState> emit,
+  ) async {
+    final serverList = event.serverList;
 
-    if (event is NewActivityLoad) {
-      final serverList = event.serverList;
+    if (serverList.isEmpty) {
+      //TODO: Yield that there are no servers
+      emit(
+        NewActivityFailure(
+          MissingServerFailure(),
+        ),
+      );
+    } else {
+      // Add servers in serverList that are not in activityMapCache.
+      _addNewServers(serverList);
 
-      if (serverList.isEmpty) {
-        //TODO: Yield that there are no servers
-        yield NewActivityFailure(MissingServerFailure());
-      } else {
-        // Add servers in serverList that are not in activityMapCache.
-        _addNewServers(serverList);
+      // Remove servers from activityMapCache that are not in serverList.
+      _removeOldServers(serverList);
 
-        // Remove servers from activityMapCache that are not in serverList.
-        _removeOldServers(serverList);
+      // Sort activityMapCache using the sortIndex of each server.
+      _sortServers(serverList);
 
-        // Sort activityMapCache using the sortIndex of each server.
-        _sortServers(serverList);
+      // Remove servers from server list with LoadingState.inProgress.
+      serverList.removeWhere(
+        (server) =>
+            activityMapCache[server.tautulliId]!['loadingState'] ==
+            LoadingState.inProgress,
+      );
 
-        // Remove servers from server list with LoadingState.inProgress.
-        serverList.removeWhere(
-          (server) =>
-              activityMapCache[server.tautulliId]!['loadingState'] ==
-              LoadingState.inProgress,
+      // Set remaining servers to LoadingState.inProgress.
+      for (String key in activityMapCache.keys.toList()) {
+        activityMapCache[key]!['loadingState'] = LoadingState.inProgress;
+      }
+
+      // Load each server with a unique event of NewActivityLoadServer.
+      _loadServers(serverList);
+    }
+  }
+
+  void _onNewActivityLoadServer(
+    NewActivityLoadServer event,
+    Emitter<NewActivityState> emit,
+  ) async {
+    await event.failureOrActivityResponse.fold(
+      (failure) {
+        //TODO: Log failure using event.plexName
+
+        activityMapCache[event.tautulliId] = {
+          'plex_name': event.plexName,
+          'loadingState': LoadingState.failure,
+          'activityList': <NewActivityModel>[],
+          'failure': failure,
+          'bandwidth': {
+            'lan': 0,
+            'wan': 0,
+          }
+        };
+        emit(
+          NewActivityLoaded(
+            activityMap: activityMapCache,
+            loadedAt: DateTime.now(),
+          ),
+        );
+      },
+      (response) async {
+        int totalLanBandwidth = 0;
+        int totalWanBandwidth = 0;
+
+        List<NewActivityModel> activityListWithPosters = await _fetchPosterUrls(
+          activityList: response.data,
+          tautulliId: event.tautulliId,
         );
 
-        // Set remaining servers to LoadingState.inProgress.
-        for (String key in activityMapCache.keys.toList()) {
-          activityMapCache[key]!['loadingState'] = LoadingState.inProgress;
-        }
-
-        // Load each server with a unique event of NewActivityLoadServer.
-        _loadServers(serverList);
-      }
-    }
-    if (event is NewActivityLoadServer) {
-      yield* event.failureOrActivityResponse.fold(
-        (failure) async* {
-          //TODO: Log failure using event.plexName
-
-          activityMapCache[event.tautulliId] = {
-            'plex_name': event.plexName,
-            'loadingState': LoadingState.failure,
-            'activityList': <NewActivityModel>[],
-            'failure': failure,
-            'bandwidth': {
-              'lan': 0,
-              'wan': 0,
-            }
-          };
-          yield NewActivityLoaded(
-            activityMap: activityMapCache,
-            loadedAt: DateTime.now(),
-          );
-        },
-        (response) async* {
-          int totalLanBandwidth = 0;
-          int totalWanBandwidth = 0;
-
-          List<NewActivityModel> activityListWithPosters =
-              await _fetchPosterUrls(
-            activityList: response.data,
-            tautulliId: event.tautulliId,
-          );
-
-          for (NewActivityModel activity in response.data) {
-            // Add bandwidth values to total bandwidths.
-            if (isNotBlank(activity.bandwidth)) {
-              switch (activity.location) {
-                case (Location.WAN):
-                case (Location.cellular):
-                  totalWanBandwidth =
-                      totalWanBandwidth + int.parse(activity.bandwidth!);
-                  break;
-                case (Location.LAN):
-                  totalLanBandwidth =
-                      totalLanBandwidth + int.parse(activity.bandwidth!);
-                  break;
-                case (Location.UNKNOWN):
-              }
+        for (NewActivityModel activity in response.data) {
+          // Add bandwidth values to total bandwidths.
+          if (isNotBlank(activity.bandwidth)) {
+            switch (activity.location) {
+              case (Location.WAN):
+              case (Location.cellular):
+                totalWanBandwidth =
+                    totalWanBandwidth + int.parse(activity.bandwidth!);
+                break;
+              case (Location.LAN):
+                totalLanBandwidth =
+                    totalLanBandwidth + int.parse(activity.bandwidth!);
+                break;
+              case (Location.UNKNOWN):
             }
           }
+        }
 
-          activityMapCache[event.tautulliId] = {
-            'plex_name': event.plexName,
-            'loadingState': LoadingState.success,
-            'activityList': activityListWithPosters,
-            'failure': null,
-            'bandwidth': {
-              'lan': totalLanBandwidth,
-              'wan': totalWanBandwidth,
-            },
-          };
+        activityMapCache[event.tautulliId] = {
+          'plex_name': event.plexName,
+          'loadingState': LoadingState.success,
+          'activityList': activityListWithPosters,
+          'failure': null,
+          'bandwidth': {
+            'lan': totalLanBandwidth,
+            'wan': totalWanBandwidth,
+          },
+        };
 
-          yield NewActivityLoaded(
+        emit(
+          NewActivityLoaded(
             activityMap: activityMapCache,
             loadedAt: DateTime.now(),
-          );
-        },
-      );
-    }
+          ),
+        );
+      },
+    );
   }
 
   /// Add servers from serverList to _serverMapCache if they are missing.

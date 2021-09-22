@@ -14,37 +14,42 @@ Map<String, NewGeoIp> geoIpMapCache = {};
 class NewGeoIpBloc extends Bloc<NewGeoIpEvent, NewGeoIpState> {
   final NewGetGeoIp getGeoIp;
 
-  NewGeoIpBloc(this.getGeoIp) : super(NewGeoIpInitial());
+  NewGeoIpBloc(this.getGeoIp) : super(NewGeoIpInitial()) {
+    on<NewGeoIpLoad>((event, emit) => _onNewGeoIpLoad(event, emit));
+  }
 
-  @override
-  Stream<NewGeoIpState> mapEventToState(
-    NewGeoIpEvent event,
-  ) async* {
-    if (event is NewGeoIpLoad) {
-      if (geoIpMapCache.containsKey(event.ipAddress)) {
-        yield NewGeoIpSuccess(geoIpMap: geoIpMapCache);
-      } else {
-        yield NewGeoIpInProgress();
+  void _onNewGeoIpLoad(NewGeoIpLoad event, Emitter<NewGeoIpState> emit) async {
+    if (geoIpMapCache.containsKey(event.ipAddress)) {
+      emit(
+        NewGeoIpSuccess(geoIpMap: geoIpMapCache),
+      );
+    } else {
+      emit(
+        NewGeoIpInProgress(),
+      );
 
-        final failureOrGeoIp = await getGeoIp(
-          tautulliId: event.tautulliId,
-          ipAddress: event.ipAddress,
-        );
+      final failureOrGeoIp = await getGeoIp(
+        tautulliId: event.tautulliId,
+        ipAddress: event.ipAddress,
+      );
 
-        yield* failureOrGeoIp.fold(
-          (failure) async* {
-            //TODO: Log geo ip failure
-            print('Geo IP failed');
+      failureOrGeoIp.fold(
+        (failure) {
+          //TODO: Log geo ip failure
+          print('Geo IP failed');
 
-            yield NewGeoIpFailure(geoIpMap: geoIpMapCache);
-          },
-          (response) async* {
-            geoIpMapCache[event.ipAddress] = response.data;
+          emit(
+            NewGeoIpFailure(geoIpMap: geoIpMapCache),
+          );
+        },
+        (response) {
+          geoIpMapCache[event.ipAddress] = response.data;
 
-            yield NewGeoIpSuccess(geoIpMap: geoIpMapCache);
-          },
-        );
-      }
+          emit(
+            NewGeoIpSuccess(geoIpMap: geoIpMapCache),
+          );
+        },
+      );
     }
   }
 }
