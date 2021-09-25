@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:tautulli_remote/core_new/device_info/device_info.dart';
-import 'package:tautulli_remote/features_new/new_onesignal/data/datasources/new_onesignal_data_source.dart';
-import 'package:tautulli_remote/core_new/api/tautulli_api/new_tautulli_api.dart'
+import 'package:tautulli_remote/rewrite/core_new/device_info/device_info.dart';
+import 'package:tautulli_remote/rewrite/features_new/new_onesignal/data/datasources/new_onesignal_data_source.dart';
+import 'package:tautulli_remote/rewrite/core_new/api/tautulli_api/new_tautulli_api.dart'
     as tautulli_api;
-import 'package:tautulli_remote/features_new/new_settings/data/datasources/new_register_device_data_source.dart';
+import 'package:tautulli_remote/rewrite/features_new/new_settings/data/datasources/new_register_device_data_source.dart';
 
 class MockDeviceInfo extends Mock implements DeviceInfoImpl {}
 
