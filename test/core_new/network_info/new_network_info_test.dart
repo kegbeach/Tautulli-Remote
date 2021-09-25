@@ -1,7 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:tautulli_remote/core_new/network_info/new_network_info.dart';
+import 'package:tautulli_remote/rewrite/core_new/network_info/new_network_info.dart';
 
 class MockConnectivity extends Mock implements Connectivity {}
 

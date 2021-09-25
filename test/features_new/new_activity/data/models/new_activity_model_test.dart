@@ -1,13 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tautulli_remote/core_new/enums/location.dart';
-import 'package:tautulli_remote/core_new/enums/media_type.dart';
-import 'package:tautulli_remote/core_new/enums/state.dart';
-import 'package:tautulli_remote/core_new/enums/stream_decision.dart';
-import 'package:tautulli_remote/core_new/enums/video_dynamic_range.dart';
-import 'package:tautulli_remote/features_new/new_activity/data/models/new_activity_model.dart';
-import 'package:tautulli_remote/features_new/new_activity/domain/entities/new_activity.dart';
+import 'package:tautulli_remote/rewrite/core_new/enums/location.dart';
+import 'package:tautulli_remote/rewrite/core_new/enums/media_type.dart';
+import 'package:tautulli_remote/rewrite/core_new/enums/state.dart';
+import 'package:tautulli_remote/rewrite/core_new/enums/stream_decision.dart';
+import 'package:tautulli_remote/rewrite/core_new/enums/video_dynamic_range.dart';
+import 'package:tautulli_remote/rewrite/features_new/new_activity/data/models/new_activity_model.dart';
+import 'package:tautulli_remote/rewrite/features_new/new_activity/domain/entities/new_activity.dart';
 
 import '../../../../fixtures_new/new_fixture_reader.dart';
 

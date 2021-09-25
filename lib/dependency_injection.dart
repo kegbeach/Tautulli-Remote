@@ -1,33 +1,34 @@
 import 'package:get_it/get_it.dart';
 
-import 'core_new/api/tautulli_api/new_tautulli_api.dart' as tautulli_api;
-import 'core_new/device_info/device_info.dart';
-import 'core_new/local_storage/local_storage.dart';
-import 'core_new/network_info/new_network_info.dart';
-import 'features_new/new_activity/data/datasources/new_activity_data_source.dart';
-import 'features_new/new_activity/data/datasources/new_geo_ip_data_source.dart';
-import 'features_new/new_activity/data/repositories/new_activity_repository_impl.dart';
-import 'features_new/new_activity/data/repositories/new_geo_ip_repository_impl.dart';
-import 'features_new/new_activity/domain/repositories/new_activity_repository.dart';
-import 'features_new/new_activity/domain/repositories/new_geo_ip_repository.dart';
-import 'features_new/new_activity/domain/usecases/new_get_activity.dart';
-import 'features_new/new_activity/domain/usecases/new_get_geo_ip.dart';
-import 'features_new/new_activity/presentation/bloc/new_activity_bloc.dart';
-import 'features_new/new_activity/presentation/bloc/new_geo_ip_bloc.dart';
-import 'features_new/new_image_url/data/datasources/new_image_url_data_source.dart';
-import 'features_new/new_image_url/data/repositories/new_image_url_repository_impl.dart';
-import 'features_new/new_image_url/domain/repositories/new_image_url_repository.dart';
-import 'features_new/new_image_url/domain/usecases/new_get_image_url.dart';
-import 'features_new/new_onesignal/data/datasources/new_onesignal_data_source.dart';
-import 'features_new/new_settings/data/datasources/new_register_device_data_source.dart';
-import 'features_new/new_settings/data/datasources/new_settings_data_source.dart';
-import 'features_new/new_settings/data/repositories/new_register_device_repository_impl.dart';
-import 'features_new/new_settings/data/repositories/new_settings_repository_impl.dart';
-import 'features_new/new_settings/domain/repositories/new_register_device_repository.dart';
-import 'features_new/new_settings/domain/repositories/new_settings_repository.dart';
-import 'features_new/new_settings/domain/usecases/new_register_device.dart';
-import 'features_new/new_settings/domain/usecases/new_settings.dart';
-import 'features_new/new_settings/presentation/bloc/new_settings_bloc.dart';
+import 'rewrite/core_new/api/tautulli_api/new_tautulli_api.dart'
+    as tautulli_api;
+import 'rewrite/core_new/device_info/device_info.dart';
+import 'rewrite/core_new/local_storage/local_storage.dart';
+import 'rewrite/core_new/network_info/new_network_info.dart';
+import 'rewrite/features_new/new_activity/data/datasources/new_activity_data_source.dart';
+import 'rewrite/features_new/new_activity/data/datasources/new_geo_ip_data_source.dart';
+import 'rewrite/features_new/new_activity/data/repositories/new_activity_repository_impl.dart';
+import 'rewrite/features_new/new_activity/data/repositories/new_geo_ip_repository_impl.dart';
+import 'rewrite/features_new/new_activity/domain/repositories/new_activity_repository.dart';
+import 'rewrite/features_new/new_activity/domain/repositories/new_geo_ip_repository.dart';
+import 'rewrite/features_new/new_activity/domain/usecases/new_get_activity.dart';
+import 'rewrite/features_new/new_activity/domain/usecases/new_get_geo_ip.dart';
+import 'rewrite/features_new/new_activity/presentation/bloc/new_activity_bloc.dart';
+import 'rewrite/features_new/new_activity/presentation/bloc/new_geo_ip_bloc.dart';
+import 'rewrite/features_new/new_image_url/data/datasources/new_image_url_data_source.dart';
+import 'rewrite/features_new/new_image_url/data/repositories/new_image_url_repository_impl.dart';
+import 'rewrite/features_new/new_image_url/domain/repositories/new_image_url_repository.dart';
+import 'rewrite/features_new/new_image_url/domain/usecases/new_get_image_url.dart';
+import 'rewrite/features_new/new_onesignal/data/datasources/new_onesignal_data_source.dart';
+import 'rewrite/features_new/new_settings/data/datasources/new_register_device_data_source.dart';
+import 'rewrite/features_new/new_settings/data/datasources/new_settings_data_source.dart';
+import 'rewrite/features_new/new_settings/data/repositories/new_register_device_repository_impl.dart';
+import 'rewrite/features_new/new_settings/data/repositories/new_settings_repository_impl.dart';
+import 'rewrite/features_new/new_settings/domain/repositories/new_register_device_repository.dart';
+import 'rewrite/features_new/new_settings/domain/repositories/new_settings_repository.dart';
+import 'rewrite/features_new/new_settings/domain/usecases/new_register_device.dart';
+import 'rewrite/features_new/new_settings/domain/usecases/new_settings.dart';
+import 'rewrite/features_new/new_settings/presentation/bloc/new_settings_bloc.dart';
 
 // Service locator alias
 final sl = GetIt.instance;
@@ -124,6 +125,7 @@ Future<void> init() async {
   sl.registerLazySingleton<NewSettingsRepository>(
     () => NewSettingsRepositoryImpl(
       dataSource: sl(),
+      networkInfo: sl(),
     ),
   );
 
@@ -138,6 +140,8 @@ Future<void> init() async {
   sl.registerLazySingleton<NewSettingsDataSource>(
     () => NewSettingsDataSourceImpl(
       localStorage: sl(),
+      apiGetServerInfo: sl(),
+      apiGetSettings: sl(),
     ),
   );
 
@@ -158,6 +162,16 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<tautulli_api.NewGetGeoipLookup>(
     () => tautulli_api.NewGetGeoipLookupImpl(
+      sl(),
+    ),
+  );
+  sl.registerLazySingleton<tautulli_api.NewGetServerInfo>(
+    () => tautulli_api.NewGetServerInfoImpl(
+      sl(),
+    ),
+  );
+  sl.registerLazySingleton<tautulli_api.NewGetSettings>(
+    () => tautulli_api.NewGetSettingsImpl(
       sl(),
     ),
   );

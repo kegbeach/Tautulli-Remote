@@ -2,11 +2,11 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:tautulli_remote/core_new/api/tautulli_api/api_response_data.dart';
-import 'package:tautulli_remote/core_new/error/new_failure.dart';
-import 'package:tautulli_remote/features_new/new_activity/data/models/new_geo_ip_model.dart';
-import 'package:tautulli_remote/features_new/new_activity/domain/usecases/new_get_geo_ip.dart';
-import 'package:tautulli_remote/features_new/new_activity/presentation/bloc/new_geo_ip_bloc.dart';
+import 'package:tautulli_remote/rewrite/core_new/api/tautulli_api/api_response_data.dart';
+import 'package:tautulli_remote/rewrite/core_new/error/new_failure.dart';
+import 'package:tautulli_remote/rewrite/features_new/new_activity/data/models/new_geo_ip_model.dart';
+import 'package:tautulli_remote/rewrite/features_new/new_activity/domain/usecases/new_get_geo_ip.dart';
+import 'package:tautulli_remote/rewrite/features_new/new_activity/presentation/bloc/new_geo_ip_bloc.dart';
 
 class MockGetGeoIp extends Mock implements NewGetGeoIp {}
 

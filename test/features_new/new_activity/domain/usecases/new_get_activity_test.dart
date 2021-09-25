@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:tautulli_remote/core_new/api/tautulli_api/api_response_data.dart';
-import 'package:tautulli_remote/features_new/new_activity/data/models/new_activity_model.dart';
-import 'package:tautulli_remote/features_new/new_activity/domain/repositories/new_activity_repository.dart';
-import 'package:tautulli_remote/features_new/new_activity/domain/usecases/new_get_activity.dart';
+import 'package:tautulli_remote/rewrite/core_new/api/tautulli_api/api_response_data.dart';
+import 'package:tautulli_remote/rewrite/features_new/new_activity/data/models/new_activity_model.dart';
+import 'package:tautulli_remote/rewrite/features_new/new_activity/domain/repositories/new_activity_repository.dart';
+import 'package:tautulli_remote/rewrite/features_new/new_activity/domain/usecases/new_get_activity.dart';
 
 import '../../../../fixtures_new/new_fixture_reader.dart';
 

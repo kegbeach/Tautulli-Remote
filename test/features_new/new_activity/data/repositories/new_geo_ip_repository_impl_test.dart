@@ -1,13 +1,13 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:tautulli_remote/core_new/api/tautulli_api/api_response_data.dart';
-import 'package:tautulli_remote/core_new/error/new_exception.dart';
-import 'package:tautulli_remote/core_new/error/new_failure.dart';
-import 'package:tautulli_remote/core_new/network_info/new_network_info.dart';
-import 'package:tautulli_remote/features_new/new_activity/data/datasources/new_geo_ip_data_source.dart';
-import 'package:tautulli_remote/features_new/new_activity/data/models/new_geo_ip_model.dart';
-import 'package:tautulli_remote/features_new/new_activity/data/repositories/new_geo_ip_repository_impl.dart';
+import 'package:tautulli_remote/rewrite/core_new/api/tautulli_api/api_response_data.dart';
+import 'package:tautulli_remote/rewrite/core_new/error/new_exception.dart';
+import 'package:tautulli_remote/rewrite/core_new/error/new_failure.dart';
+import 'package:tautulli_remote/rewrite/core_new/network_info/new_network_info.dart';
+import 'package:tautulli_remote/rewrite/features_new/new_activity/data/datasources/new_geo_ip_data_source.dart';
+import 'package:tautulli_remote/rewrite/features_new/new_activity/data/models/new_geo_ip_model.dart';
+import 'package:tautulli_remote/rewrite/features_new/new_activity/data/repositories/new_geo_ip_repository_impl.dart';
 
 class MockGeoIpDataSource extends Mock implements NewGeoIpDataSource {}
 

@@ -3,13 +3,13 @@ import 'dart:convert';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:tautulli_remote/core_new/api/tautulli_api/api_response_data.dart';
-import 'package:tautulli_remote/core_new/error/new_exception.dart';
-import 'package:tautulli_remote/core_new/error/new_failure.dart';
-import 'package:tautulli_remote/core_new/network_info/new_network_info.dart';
-import 'package:tautulli_remote/features_new/new_activity/data/datasources/new_activity_data_source.dart';
-import 'package:tautulli_remote/features_new/new_activity/data/models/new_activity_model.dart';
-import 'package:tautulli_remote/features_new/new_activity/data/repositories/new_activity_repository_impl.dart';
+import 'package:tautulli_remote/rewrite/core_new/api/tautulli_api/api_response_data.dart';
+import 'package:tautulli_remote/rewrite/core_new/error/new_exception.dart';
+import 'package:tautulli_remote/rewrite/core_new/error/new_failure.dart';
+import 'package:tautulli_remote/rewrite/core_new/network_info/new_network_info.dart';
+import 'package:tautulli_remote/rewrite/features_new/new_activity/data/datasources/new_activity_data_source.dart';
+import 'package:tautulli_remote/rewrite/features_new/new_activity/data/models/new_activity_model.dart';
+import 'package:tautulli_remote/rewrite/features_new/new_activity/data/repositories/new_activity_repository_impl.dart';
 
 import '../../../../fixtures_new/new_fixture_reader.dart';
 
@@ -72,7 +72,7 @@ void main() {
       );
 
       test(
-        'response should contain key data with list of NewActivityModel',
+        'response should contain ApiResponseData with list of NewActivityModel',
         () async {
           // arrange
           when(() => mockDataSource.getActivity(

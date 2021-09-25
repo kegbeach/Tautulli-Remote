@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:tautulli_remote/core_new/api/tautulli_api/api_response_data.dart';
-import 'package:tautulli_remote/core_new/api/tautulli_api/new_tautulli_api.dart'
+import 'package:tautulli_remote/rewrite/core_new/api/tautulli_api/api_response_data.dart';
+import 'package:tautulli_remote/rewrite/core_new/api/tautulli_api/new_tautulli_api.dart'
     as tautulli_api;
-import 'package:tautulli_remote/features_new/new_activity/data/datasources/new_activity_data_source.dart';
-import 'package:tautulli_remote/features_new/new_activity/data/models/new_activity_model.dart';
+import 'package:tautulli_remote/rewrite/features_new/new_activity/data/datasources/new_activity_data_source.dart';
+import 'package:tautulli_remote/rewrite/features_new/new_activity/data/models/new_activity_model.dart';
 
 import '../../../../fixtures_new/new_fixture_reader.dart';
 

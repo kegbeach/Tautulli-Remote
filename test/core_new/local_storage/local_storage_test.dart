@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tautulli_remote/core_new/local_storage/local_storage.dart';
+import 'package:tautulli_remote/rewrite/core_new/local_storage/local_storage.dart';
 
 class MockSharedPreferences extends Mock implements SharedPreferences {}
 
