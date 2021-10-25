@@ -1,0 +1,93 @@
+import 'package:flutter/material.dart';
+
+import '../../../../core_new/helpers/new_color_palette_helper.dart';
+import 'new_change_type_tag.dart';
+
+class NewChangelogItem extends StatelessWidget {
+  final Map release;
+
+  const NewChangelogItem(
+    this.release, {
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: 8,
+        right: 8,
+        bottom: 30,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          //* Heading
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                release['version'],
+                style: const TextStyle(
+                  color: TautulliColorPalette.not_white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                release['date'],
+                style: const TextStyle(
+                  color: Colors.grey,
+                ),
+              ),
+            ],
+          ),
+          const Padding(
+            padding: EdgeInsets.only(top: 4),
+            child: Divider(
+              height: 0,
+              color: TautulliColorPalette.not_white,
+            ),
+          ),
+          //* Changes
+          Column(
+            children: release['changes'].map<Widget>(
+              (change) {
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: NewChangeTypeTag(change['type']),
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(change['detail']),
+                            if (change['additional'] != null)
+                              Text(
+                                change['additional'],
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 13,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+}
