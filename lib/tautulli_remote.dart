@@ -1,17 +1,18 @@
 // @dart=2.9
 
-import 'dart:io';
-
 import 'package:easy_localization/easy_localization.dart';
+import 'package:f_logs/f_logs.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:quiver/strings.dart';
+import 'package:tautulli_remote/rewrite/features_new/new_logging/presentation/pages/new_logging_page.dart';
+import 'package:tautulli_remote/rewrite/features_new/new_translate/presentation/pages/new_translate_page.dart';
 
 import 'core/helpers/color_palette_helper.dart';
+import 'dependency_injection.dart' as new_di;
 import 'features/activity/presentation/pages/activity_page.dart';
 import 'features/announcements/presentation/pages/announcements_page.dart';
 import 'features/changelog/presentation/pages/changelog_page.dart';
@@ -24,7 +25,6 @@ import 'features/logging/domain/usecases/logging.dart';
 import 'features/logging/presentation/pages/logs_page.dart';
 import 'features/onesignal/data/datasources/onesignal_data_source.dart';
 import 'features/onesignal/presentation/bloc/onesignal_health_bloc.dart';
-import 'features/onesignal/presentation/bloc/onesignal_privacy_bloc.dart';
 import 'features/onesignal/presentation/bloc/onesignal_subscription_bloc.dart';
 import 'features/privacy/presentation/pages/privacy_page.dart';
 import 'features/recent/presentation/pages/recently_added_page.dart';
@@ -39,6 +39,16 @@ import 'features/translate/presentation/pages/translate_page.dart';
 import 'features/users/presentation/pages/users_page.dart';
 import 'features/wizard/presentation/pages/wizard_page.dart';
 import 'injection_container.dart' as di;
+import 'rewrite/features_new/new_activity/presentation/pages/new_activity_page.dart';
+import 'rewrite/features_new/new_changelog/presentation/pages/new_changelog_page.dart';
+import 'rewrite/features_new/new_help/presentation/pages/new_help_page.dart';
+import 'rewrite/features_new/new_onesignal/data/datasources/new_onesignal_data_source.dart';
+import 'rewrite/features_new/new_onesignal/presentation/bloc/new_onesignal_health_bloc.dart';
+import 'rewrite/features_new/new_onesignal/presentation/bloc/new_onesignal_subscription_bloc.dart';
+import 'rewrite/features_new/new_privacy/presentation/pages/new_privacy_page.dart';
+import 'rewrite/features_new/new_settings/domain/usecases/new_settings.dart';
+import 'rewrite/features_new/new_settings/presentation/pages/new_advanced_settings_page.dart';
+import 'rewrite/features_new/new_settings/presentation/pages/new_settings_page.dart';
 
 class TautulliRemote extends StatefulWidget {
   final bool showWizard;
@@ -59,6 +69,7 @@ class _TautulliRemoteState extends State<TautulliRemote> {
   void initState() {
     super.initState();
     initializeFlutterFire();
+    initalizeLogConfiguration();
     initPlatformState();
     context.read<SettingsBloc>().add(
           SettingsLoad(
@@ -67,6 +78,9 @@ class _TautulliRemoteState extends State<TautulliRemote> {
         );
     context.read<SettingsBloc>().add(SettingsUpdateLastAppVersion());
     context.read<OneSignalHealthBloc>().add(OneSignalHealthCheck());
+    //TODO: New checks
+    // context.read<NewSettingsBloc>().add(NewSettingsUpdateLastAppVersion());
+    context.read<NewOnesignalHealthBloc>().add(NewOnesignalHealthCheck());
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -102,6 +116,19 @@ class _TautulliRemoteState extends State<TautulliRemote> {
         }
       });
     }
+    //TODO: Updated version of above
+    if (isEmpty(await new_di.sl<NewOnesignalDataSource>().userId) &&
+        await new_di.sl<NewOnesignalDataSource>().hasConsented == true) {
+      await new_di
+          .sl<NewSettings>()
+          .getOneSignalConsented()
+          .then((consented) async {
+        if (consented) {
+          //TODO: Add logging
+          await di.sl<NewOnesignalDataSource>().grantConsent(true);
+        }
+      });
+    }
 
     await OneSignal.shared.setRequiresUserPrivacyConsent(true);
 
@@ -127,6 +154,11 @@ class _TautulliRemoteState extends State<TautulliRemote> {
             .read<OneSignalSubscriptionBloc>()
             .add(OneSignalSubscriptionCheck());
         context.read<OneSignalHealthBloc>().add(OneSignalHealthCheck());
+        //TODO: Updated checks
+        context
+            .read<NewOnesignalSubscriptionBloc>()
+            .add(NewOnesignalSubscriptionCheck());
+        context.read<NewOnesignalHealthBloc>().add(NewOnesignalHealthCheck());
       }
 
       if (changes.to.userId != null) {
@@ -172,6 +204,8 @@ class _TautulliRemoteState extends State<TautulliRemote> {
           }
         }
       }
+      //TODO: Updated version of above
+      if (changes.to.userId != null) {}
     });
   }
 
@@ -184,16 +218,24 @@ class _TautulliRemoteState extends State<TautulliRemote> {
     }
   }
 
+  void initalizeLogConfiguration() {
+    FLog.applyConfigurations(
+      LogsConfig()..activeLogLevel = LogLevel.ALL,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle.dark.copyWith(
-        systemNavigationBarColor: PlexColorPalette.shark,
+        //TODO: Updated nav bar color
+        // systemNavigationBarColor: PlexColorPalette.shark,
+        systemNavigationBarColor: TautulliColorPalette.gunmetal,
       ),
     );
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-    ]);
+    // SystemChrome.setPreferredOrientations([
+    //   DeviceOrientation.portraitUp,
+    // ]);
 
     // Function used with textButtonTheme ButtonStyle to force foregroundColor
     Color getTextButtonColor(Set<MaterialState> states) {
@@ -256,7 +298,10 @@ class _TautulliRemoteState extends State<TautulliRemote> {
               color: PlexColorPalette.river_bed,
             ),
         dividerColor: TautulliColorPalette.not_white,
-        cardColor: PlexColorPalette.shark,
+        // cardColor: PlexColorPalette.shark,
+        //TODO: New Theme items
+        scaffoldBackgroundColor: TautulliColorPalette.midnight,
+        cardColor: TautulliColorPalette.gunmetal,
       ),
       routes: {
         ActivityPage.routeName: (ctx) => const ActivityPage(),
@@ -277,6 +322,16 @@ class _TautulliRemoteState extends State<TautulliRemote> {
         SyncedItemsPage.routeName: (ctx) => const SyncedItemsPage(),
         UsersPage.routeName: (ctx) => const UsersPage(),
         WizardPage.routeName: (ctx) => const WizardPage(),
+        //TODO: Add new routes
+        NewActivityPage.routeName: (_) => const NewActivityPage(),
+        NewChangelogPage.routeName: (_) => const NewChangelogPage(),
+        NewHelpPage.routeName: (_) => const NewHelpPage(),
+        NewLoggingPage.routeName: (_) => const NewLoggingPage(),
+        NewPrivacyPage.routeName: (_) => const NewPrivacyPage(),
+        NewSettingsPage.routeName: (_) => const NewSettingsPage(),
+        NewAdvancedSettingsPage.routeName: (_) =>
+            const NewAdvancedSettingsPage(),
+        NewTranslatePage.routeName: (_) => const NewTranslatePage(),
       },
       builder: (context, child) {
         final MediaQueryData data = MediaQuery.of(context);

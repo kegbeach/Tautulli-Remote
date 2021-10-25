@@ -7,8 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:quiver/strings.dart';
+import 'package:tautulli_remote/rewrite/features_new/new_settings/presentation/bloc/registration_headers_bloc.dart';
 
 import 'core/helpers/translation_helper.dart';
+import 'dependency_injection.dart' as new_di;
 import 'features/announcements/presentation/bloc/announcements_bloc.dart';
 import 'features/logging/domain/usecases/logging.dart';
 import 'features/onesignal/data/datasources/onesignal_data_source.dart';
@@ -21,6 +23,11 @@ import 'features/settings/presentation/bloc/register_device_headers_bloc.dart';
 import 'features/settings/presentation/bloc/settings_bloc.dart';
 import 'features/translate/presentation/bloc/translate_bloc.dart';
 import 'injection_container.dart' as di;
+import 'rewrite/features_new/new_onesignal/presentation/bloc/new_onesignal_health_bloc.dart';
+import 'rewrite/features_new/new_onesignal/presentation/bloc/new_onesignal_privacy_bloc.dart';
+import 'rewrite/features_new/new_onesignal/presentation/bloc/new_onesignal_subscription_bloc.dart';
+import 'rewrite/features_new/new_settings/presentation/bloc/new_settings_bloc.dart';
+import 'rewrite/features_new/new_translate/presentation/bloc/new_translate_bloc.dart';
 import 'tautulli_remote.dart';
 import 'translations/codegen_loader.g.dart';
 
@@ -49,6 +56,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
   await di.init();
+  //TODO: Replace di for new items
+  await new_di.init();
 
   // Override global HttpClient to check for trusted cert hashes on certificate failure.
   final List<int> customCertHashList =
@@ -122,6 +131,28 @@ void main() async {
           ),
           BlocProvider<TranslateBloc>(
             create: (context) => di.sl<TranslateBloc>(),
+          ),
+          //TODO: Add new providers
+          BlocProvider<NewOnesignalHealthBloc>(
+            create: (context) => new_di.sl<NewOnesignalHealthBloc>(),
+          ),
+          BlocProvider<NewOnesignalPrivacyBloc>(
+            create: (context) => new_di.sl<NewOnesignalPrivacyBloc>()
+              ..add(NewOnesignalPrivacyCheck()),
+          ),
+          BlocProvider<NewOnesignalSubscriptionBloc>(
+            create: (context) => new_di.sl<NewOnesignalSubscriptionBloc>()
+              ..add(NewOnesignalSubscriptionCheck()),
+          ),
+          BlocProvider<RegistrationHeadersBloc>(
+            create: (context) => new_di.sl<RegistrationHeadersBloc>(),
+          ),
+          BlocProvider<NewSettingsBloc>(
+            create: (context) =>
+                new_di.sl<NewSettingsBloc>()..add(NewSettingsLoad()),
+          ),
+          BlocProvider<NewTranslateBloc>(
+            create: (context) => new_di.sl<NewTranslateBloc>(),
           ),
         ],
         child: TautulliRemote(
