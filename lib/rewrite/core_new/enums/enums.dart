@@ -1,6 +1,7 @@
 export 'loading_state.dart';
 export 'location.dart';
 export 'media_type.dart';
+export 'protocol.dart';
 export 'state.dart';
 export 'stream_decision.dart';
 export 'subtitle_decision.dart';
