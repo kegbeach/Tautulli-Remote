@@ -11,10 +11,7 @@ class SettingsNotLoaded extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<NewSettingsBloc, NewSettingsState>(
       builder: (context, state) {
-        return Scaffold(
-          appBar: AppBar(),
-          body: _buildSettingsNotLoadedBody(state),
-        );
+        return _buildSettingsNotLoadedBody(state);
       },
     );
   }
