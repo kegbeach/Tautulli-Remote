@@ -366,6 +366,21 @@ class AppDrawer extends StatelessWidget {
                           .pushReplacementNamed(SettingsPage.routeName);
                     },
                   ),
+                  const Divider(
+                    color: PlexColorPalette.raven,
+                  ),
+                  ListTile(
+                    leading: const FaIcon(
+                      FontAwesomeIcons.solidStar,
+                      size: 20,
+                      color: TautulliColorPalette.not_white,
+                    ),
+                    title: const Text('New App'),
+                    onTap: () {
+                      Navigator.of(context)
+                          .pushReplacementNamed('/new_activity');
+                    },
+                  ),
                 ],
               ),
             ),
