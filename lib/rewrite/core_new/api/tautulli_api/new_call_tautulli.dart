@@ -18,6 +18,7 @@ abstract class NewCallTautulli {
     required Map<String, String> params,
     required bool trustCert,
     int? timeoutOverride,
+    required Map<String, String> headers,
   });
 }
 
@@ -32,6 +33,7 @@ class NewCallTautulliImpl implements NewCallTautulli {
     required Map<String, String> params,
     required bool trustCert,
     int? timeoutOverride,
+    required Map<String, String> headers,
   }) async {
     // Add required parameter values into params
     params['cmd'] = cmd;
@@ -107,10 +109,12 @@ class NewCallTautulliImpl implements NewCallTautulli {
     // Call API using contructed URI and IOClient
     http.Response response;
     try {
-      response = await ioClient.get(
-        uri,
-        headers: {'Content-Type': 'application/json'},
-      ).timeout(Duration(seconds: timeoutOverride ?? timeout));
+      response = await ioClient
+          .get(
+            uri,
+            headers: headers,
+          )
+          .timeout(Duration(seconds: timeoutOverride ?? timeout));
     } catch (e) {
       if (e.runtimeType == HandshakeException &&
           e.toString().contains('CERTIFICATE_VERIFY_FAILED')) {

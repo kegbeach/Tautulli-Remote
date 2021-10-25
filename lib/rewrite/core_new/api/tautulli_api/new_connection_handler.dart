@@ -2,6 +2,7 @@ import 'package:quiver/strings.dart';
 
 import '../../../../dependency_injection.dart' as di;
 import '../../../features_new/new_settings/domain/usecases/new_settings.dart';
+import '../../database/data/models/new_custom_header_model.dart';
 import '../../database/data/models/new_server_model.dart';
 import '../../error/new_exception.dart';
 import 'new_call_tautulli.dart';
@@ -47,6 +48,7 @@ class NewConnectionHandlerImpl implements NewConnectionHandler {
     String? secondaryConnectionDomain;
     String? secondaryConnectionPath;
     bool? primaryActive;
+    Map<String, String> headers = {'Content-Type': 'application/json'};
 
     // If Tautulli ID is blank and connection information is blank
     // throw ConnectionDetailsException.
@@ -81,9 +83,18 @@ class NewConnectionHandlerImpl implements NewConnectionHandler {
     }
 
     // If primaryActive has not been set default to true
-    if (primaryActive == null) {
-      primaryActive = true;
+    primaryActive ??= true;
+
+    // Parse custom headers
+    if (isNotBlank(tautulliId)) {
+      final List<NewCustomHeaderModel> customHeadersList =
+          await di.sl<NewSettings>().getCustomHeadersByTautulliId(tautulliId!);
+
+      for (NewCustomHeaderModel header in customHeadersList) {
+        headers[header.key] = header.value;
+      }
     }
+    //TODO: add else for register device headers
 
     var responseData;
     // Try making the call to Tautulli using the active connection details.
@@ -105,6 +116,7 @@ class NewConnectionHandlerImpl implements NewConnectionHandler {
         params: params,
         trustCert: trustCert,
         timeoutOverride: timeoutOverride,
+        headers: headers,
       );
     } catch (e) {
       // If a secondary connection address is configured swap the active
@@ -133,6 +145,7 @@ class NewConnectionHandlerImpl implements NewConnectionHandler {
             params: params,
             trustCert: trustCert,
             timeoutOverride: timeoutOverride,
+            headers: headers,
           );
 
           //TODO: The SettingsBloc state needs to know the active server swapped
