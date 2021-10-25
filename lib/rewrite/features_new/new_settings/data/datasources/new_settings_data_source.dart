@@ -6,7 +6,9 @@ import '../../../../core_new/api/tautulli_api/new_tautulli_api.dart'
 import '../../../../core_new/database/data/datasources/new_database.dart';
 import '../../../../core_new/database/data/models/new_custom_header_model.dart';
 import '../../../../core_new/database/data/models/new_server_model.dart';
+import '../../../../core_new/enums/protocol.dart';
 import '../../../../core_new/local_storage/local_storage.dart';
+import '../models/connection_address_model.dart';
 import '../models/new_plex_server_info_model.dart';
 import '../models/new_tautulli_settings_general_model.dart';
 
@@ -94,7 +96,7 @@ abstract class NewSettingsDataSource {
 
   Future<int> updateConnectionInfo({
     required int id,
-    required Map<String, String> connectionInfo,
+    required ConnectionAddressModel connectionAddress,
   });
 
   Future<int> updateCustomHeaders({
@@ -398,11 +400,32 @@ class NewSettingsDataSourceImpl implements NewSettingsDataSource {
   @override
   Future<int> updateConnectionInfo({
     required int id,
-    required Map<String, String> connectionInfo,
+    required ConnectionAddressModel connectionAddress,
   }) async {
+    final Map<String, String?> connectionAddressMap = {};
+
+    if (connectionAddress.primary) {
+      connectionAddressMap['primary_connection_address'] =
+          connectionAddress.address;
+      connectionAddressMap['primary_connection_protocol'] =
+          connectionAddress.protocol?.toShortString();
+      connectionAddressMap['primary_connection_domain'] =
+          connectionAddress.domain;
+      connectionAddressMap['primary_connection_path'] = connectionAddress.path;
+    } else {
+      connectionAddressMap['secondary_connection_address'] =
+          connectionAddress.address;
+      connectionAddressMap['secondary_connection_protocol'] =
+          connectionAddress.protocol?.toShortString();
+      connectionAddressMap['secondary_connection_domain'] =
+          connectionAddress.domain;
+      connectionAddressMap['secondary_connection_path'] =
+          connectionAddress.path;
+    }
+
     return await DBProvider.db.updateConnection(
       id: id,
-      dbConnectionAddressMap: connectionInfo,
+      dbConnectionAddressMap: connectionAddressMap,
     );
   }
 

@@ -8,6 +8,7 @@ import '../../../../core_new/helpers/new_failure_helper.dart';
 import '../../../../core_new/network_info/new_network_info.dart';
 import '../../domain/repositories/new_settings_repository.dart';
 import '../datasources/new_settings_data_source.dart';
+import '../models/connection_address_model.dart';
 
 class NewSettingsRepositoryImpl implements NewSettingsRepository {
   final NewSettingsDataSource dataSource;
@@ -245,11 +246,11 @@ class NewSettingsRepositoryImpl implements NewSettingsRepository {
   @override
   Future<int> updateConnectionInfo({
     required int id,
-    required Map<String, String> connectionInfo,
+    required ConnectionAddressModel connectionAddress,
   }) async {
     return await dataSource.updateConnectionInfo(
       id: id,
-      connectionInfo: connectionInfo,
+      connectionAddress: connectionAddress,
     );
   }
 

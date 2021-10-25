@@ -4,6 +4,7 @@ import '../../../../core_new/api/tautulli_api/api_response_data.dart';
 import '../../../../core_new/database/data/models/new_custom_header_model.dart';
 import '../../../../core_new/database/data/models/new_server_model.dart';
 import '../../../../core_new/error/new_failure.dart';
+import '../../data/models/connection_address_model.dart';
 import '../repositories/new_settings_repository.dart';
 
 class NewSettings {
@@ -255,20 +256,14 @@ class NewSettings {
     return await repository.setYAxis(value);
   }
 
-  /// Updates the server with provided ID using the information provided in
-  /// `connectionInfo`.
-  ///
-  /// Map should contain keys of `*_connection_address`,
-  /// `*_connection_protocol`, `*_connection_domain`, and `*_connection_path`.
-  ///
-  /// Where `*` can be `primary` or `secondary`.
+  /// Updates the server with `ID` using the `ConnectionAddressModel`.
   Future<int> updateConnectionInfo({
     required int id,
-    required Map<String, String> connectionInfo,
+    required ConnectionAddressModel connectionAddress,
   }) async {
     return await repository.updateConnectionInfo(
       id: id,
-      connectionInfo: connectionInfo,
+      connectionAddress: connectionAddress,
     );
   }
 
