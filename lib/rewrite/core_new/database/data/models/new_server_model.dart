@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:validators/sanitizers.dart';
 
 import '../../domain/entities/new_server.dart';
+import 'new_custom_header_model.dart';
 
 class NewServerModel extends NewServer {
   NewServerModel({
@@ -23,6 +26,7 @@ class NewServerModel extends NewServer {
     required bool plexPass,
     String? dateFormat,
     String? timeFormat,
+    required List<NewCustomHeaderModel> customHeaders,
   }) : super(
           id: id,
           sortIndex: sortIndex,
@@ -43,6 +47,7 @@ class NewServerModel extends NewServer {
           plexPass: plexPass,
           dateFormat: dateFormat,
           timeFormat: timeFormat,
+          customHeaders: customHeaders,
         );
 
   NewServerModel copyWith({
@@ -65,6 +70,7 @@ class NewServerModel extends NewServer {
     bool? plexPass,
     String? dateFormat,
     String? timeFormat,
+    List<NewCustomHeaderModel>? customHeaders,
   }) {
     return NewServerModel(
       id: id ?? this.id,
@@ -94,36 +100,52 @@ class NewServerModel extends NewServer {
       plexPass: plexPass ?? this.plexPass,
       dateFormat: dateFormat ?? this.dateFormat,
       timeFormat: timeFormat ?? this.timeFormat,
+      customHeaders: customHeaders ?? this.customHeaders,
     );
   }
 
   // Create Settings from JSON data
-  factory NewServerModel.fromJson(Map<String, dynamic> json) {
-    bool primaryActiveBool = toBoolean(json['primary_active'].toString());
+  factory NewServerModel.fromJson(Map<String, dynamic> serverJson) {
+    bool primaryActiveBool = toBoolean(serverJson['primary_active'].toString());
     bool onesignalRegisteredBool =
-        toBoolean(json['onesignal_registered'].toString());
-    bool plexPass = toBoolean(json['plex_plexpass'].toString());
+        toBoolean(serverJson['onesignal_registered'].toString());
+    bool plexPass = toBoolean(serverJson['plex_plexpass'].toString());
+
+    List<NewCustomHeaderModel> customHeaderList = [];
+    if (serverJson['custom_headers'] != null) {
+      final decodedCustomHeaders = json.decode(
+        serverJson['custom_headers'],
+      );
+
+      decodedCustomHeaders.forEach((key, value) {
+        customHeaderList.add(NewCustomHeaderModel(
+          key: key,
+          value: value,
+        ));
+      });
+    }
 
     return NewServerModel(
-      id: json['id'],
-      sortIndex: json['sort_index'],
-      plexName: json['plex_name'],
-      plexIdentifier: json['plex_identifier'],
-      tautulliId: json['tautulli_id'],
-      primaryConnectionAddress: json['primary_connection_address'],
-      primaryConnectionProtocol: json['primary_connection_protocol'],
-      primaryConnectionDomain: json['primary_connection_domain'],
-      primaryConnectionPath: json['primary_connection_path'],
-      secondaryConnectionAddress: json['secondary_connection_address'],
-      secondaryConnectionProtocol: json['secondary_connection_protocol'],
-      secondaryConnectionDomain: json['secondary_connection_domain'],
-      secondaryConnectionPath: json['secondary_connection_path'],
-      deviceToken: json['device_token'],
+      id: serverJson['id'],
+      sortIndex: serverJson['sort_index'],
+      plexName: serverJson['plex_name'],
+      plexIdentifier: serverJson['plex_identifier'],
+      tautulliId: serverJson['tautulli_id'],
+      primaryConnectionAddress: serverJson['primary_connection_address'],
+      primaryConnectionProtocol: serverJson['primary_connection_protocol'],
+      primaryConnectionDomain: serverJson['primary_connection_domain'],
+      primaryConnectionPath: serverJson['primary_connection_path'],
+      secondaryConnectionAddress: serverJson['secondary_connection_address'],
+      secondaryConnectionProtocol: serverJson['secondary_connection_protocol'],
+      secondaryConnectionDomain: serverJson['secondary_connection_domain'],
+      secondaryConnectionPath: serverJson['secondary_connection_path'],
+      deviceToken: serverJson['device_token'],
       primaryActive: primaryActiveBool,
       onesignalRegistered: onesignalRegisteredBool,
       plexPass: plexPass,
-      dateFormat: json['date_format'],
-      timeFormat: json['time_format'],
+      dateFormat: serverJson['date_format'],
+      timeFormat: serverJson['time_format'],
+      customHeaders: customHeaderList,
     );
   }
 
