@@ -223,6 +223,7 @@ class _NewActivityViewState extends State<NewActivityView>
     Map<String, Map<String, dynamic>> activityMap,
   ) {
     List<Widget> activityWidgetList = [];
+    final double screenWidth = MediaQuery.of(context).size.width;
 
     activityMap.forEach((serverId, serverData) {
       NewFailure? failure = serverData['failure'];
@@ -267,7 +268,11 @@ class _NewActivityViewState extends State<NewActivityView>
             ),
           ),
           sliver: SliverGrid.count(
-            crossAxisCount: MediaQuery.of(context).size.width > 580 ? 2 : 1,
+            crossAxisCount: screenWidth > 1000
+                ? 3
+                : screenWidth > 580
+                    ? 2
+                    : 1,
             childAspectRatio: 2 / 0.75,
             mainAxisSpacing: 4,
             crossAxisSpacing: 4,
