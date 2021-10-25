@@ -1,0 +1,33 @@
+import 'package:flutter/material.dart';
+
+import '../pages/new_server_registration_page.dart';
+
+class RegisterServerButton extends StatelessWidget {
+  const RegisterServerButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              primary: Theme.of(context).accentColor,
+            ),
+            onPressed: () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute(
+                  fullscreenDialog: true,
+                  builder: (context) {
+                    return const NewServerRegistrationPage();
+                  },
+                ),
+              );
+            },
+            child: const Text('Register a Tautulli Server'),
+          ),
+        ),
+      ],
+    );
+  }
+}
