@@ -2,6 +2,26 @@ import 'package:duration/duration.dart';
 import 'package:intl/intl.dart';
 
 class NewTimeHelper {
+  static String cleanDateTime(
+    int timeSinceEpochInSeconds, {
+    String? dateFormat,
+    String? timeFormat,
+    bool dateOnly = false,
+    bool timeOnly = false,
+  }) {
+    DateTime dateTime =
+        DateTime.fromMillisecondsSinceEpoch(timeSinceEpochInSeconds * 1000);
+
+    final String parsedDateFormat =
+        dateFormat != null ? _parseDateFormat(dateFormat) : 'y-MM-dd';
+    final String parsedTimeFormat =
+        timeFormat != null ? _parseTimeFormat(timeFormat) : 'HH:mm';
+
+    return DateFormat(
+      '${!timeOnly ? parsedDateFormat : ""} ${!dateOnly ? parsedTimeFormat : ""}',
+    ).format(dateTime).trim();
+  }
+
   static String eta(
     int duration,
     int progressPercent,
@@ -25,6 +45,32 @@ class NewTimeHelper {
     } else {
       return '${duration.inHours}:${duration.inMinutes.remainder(60).toString().padLeft(2, "0")}:${duration.inSeconds.remainder(60).toString().padLeft(2, "0")}';
     }
+  }
+
+  static String logDate(
+    int timeSinceEpochInMilliseconds, {
+    String? dateFormat,
+  }) {
+    DateTime dateTime =
+        DateTime.fromMillisecondsSinceEpoch(timeSinceEpochInMilliseconds);
+
+    final String parsedDateFormat =
+        dateFormat != null ? _parseDateFormat(dateFormat) : 'y-MM-dd';
+
+    return DateFormat(parsedDateFormat).format(dateTime).trim();
+  }
+
+  static String logTime(
+    int timeSinceEpochInMilliseconds, {
+    String? timeFormat,
+  }) {
+    DateTime dateTime =
+        DateTime.fromMillisecondsSinceEpoch(timeSinceEpochInMilliseconds);
+
+    final String parsedTimeFormat =
+        timeFormat != null ? '$_parseTimeFormat(timeFormat):ss' : 'HH:mm:ss';
+
+    return DateFormat(parsedTimeFormat).format(dateTime).trim();
   }
 
   /// Returns a cleaner version of [Duration].
