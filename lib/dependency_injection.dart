@@ -15,11 +15,25 @@ import 'rewrite/features_new/new_activity/domain/usecases/new_get_activity.dart'
 import 'rewrite/features_new/new_activity/domain/usecases/new_get_geo_ip.dart';
 import 'rewrite/features_new/new_activity/presentation/bloc/new_activity_bloc.dart';
 import 'rewrite/features_new/new_activity/presentation/bloc/new_geo_ip_bloc.dart';
+import 'rewrite/features_new/new_cache/data/datasources/new_cache_data_source.dart';
+import 'rewrite/features_new/new_cache/data/repository/new_cache_repository_impl.dart';
+import 'rewrite/features_new/new_cache/domain/repository/new_cache_repository.dart';
+import 'rewrite/features_new/new_cache/domain/usecases/new_clear_cache.dart';
+import 'rewrite/features_new/new_cache/presentation/bloc/new_cache_bloc.dart';
 import 'rewrite/features_new/new_image_url/data/datasources/new_image_url_data_source.dart';
 import 'rewrite/features_new/new_image_url/data/repositories/new_image_url_repository_impl.dart';
 import 'rewrite/features_new/new_image_url/domain/repositories/new_image_url_repository.dart';
 import 'rewrite/features_new/new_image_url/domain/usecases/new_get_image_url.dart';
+import 'rewrite/features_new/new_logging/data/datasources/new_logging_data_source.dart';
+import 'rewrite/features_new/new_logging/data/repositories/new_logging_repository_impl.dart';
+import 'rewrite/features_new/new_logging/domain/repositories/new_logging_repository.dart';
+import 'rewrite/features_new/new_logging/domain/usecases/new_logging.dart';
+import 'rewrite/features_new/new_logging/presentation/bloc/logging_export_bloc.dart';
+import 'rewrite/features_new/new_logging/presentation/bloc/new_logging_bloc.dart';
 import 'rewrite/features_new/new_onesignal/data/datasources/new_onesignal_data_source.dart';
+import 'rewrite/features_new/new_onesignal/presentation/bloc/new_onesignal_health_bloc.dart';
+import 'rewrite/features_new/new_onesignal/presentation/bloc/new_onesignal_privacy_bloc.dart';
+import 'rewrite/features_new/new_onesignal/presentation/bloc/new_onesignal_subscription_bloc.dart';
 import 'rewrite/features_new/new_settings/data/datasources/new_register_device_data_source.dart';
 import 'rewrite/features_new/new_settings/data/datasources/new_settings_data_source.dart';
 import 'rewrite/features_new/new_settings/data/repositories/new_register_device_repository_impl.dart';
@@ -28,7 +42,10 @@ import 'rewrite/features_new/new_settings/domain/repositories/new_register_devic
 import 'rewrite/features_new/new_settings/domain/repositories/new_settings_repository.dart';
 import 'rewrite/features_new/new_settings/domain/usecases/new_register_device.dart';
 import 'rewrite/features_new/new_settings/domain/usecases/new_settings.dart';
+import 'rewrite/features_new/new_settings/presentation/bloc/new_registration_bloc.dart';
 import 'rewrite/features_new/new_settings/presentation/bloc/new_settings_bloc.dart';
+import 'rewrite/features_new/new_settings/presentation/bloc/registration_headers_bloc.dart';
+import 'rewrite/features_new/new_translate/presentation/bloc/new_translate_bloc.dart';
 
 // Service locator alias
 final sl = GetIt.instance;
@@ -76,6 +93,27 @@ Future<void> init() async {
     () => NewGeoIpDataSourceImpl(sl()),
   );
 
+  //! Feature - Cache
+  // Bloc
+  sl.registerFactory(
+    () => NewCacheBloc(sl()),
+  );
+
+  // Use case
+  sl.registerLazySingleton(
+    () => NewClearCache(sl()),
+  );
+
+  // Repository
+  sl.registerLazySingleton<NewCacheRepository>(
+    () => NewCacheRepositoryImpl(sl()),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<NewCacheDataSource>(
+    () => NewCacheDataSourceImpl(sl()),
+  );
+
   //! Feature - Image URL
   // Use case
   sl.registerLazySingleton(
@@ -95,16 +133,72 @@ Future<void> init() async {
     () => NewImageUrlDataSourceImpl(sl()),
   );
 
+  //! Features - Logging
+  // Bloc
+  sl.registerFactory(
+    () => NewLoggingBloc(sl()),
+  );
+  sl.registerFactory(
+    () => LoggingExportBloc(sl()),
+  );
+
+  // Use case
+  sl.registerLazySingleton(
+    () => NewLogging(sl()),
+  );
+
+  // Repository
+  sl.registerLazySingleton<NewLoggingRepository>(
+    () => NewLoggingRepositoryImpl(sl()),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<NewLoggingDataSource>(
+    () => NewLoggingDataSourceImpl(),
+  );
+
   //! Features - OneSignal
+  // Bloc
+  sl.registerFactory(
+    () => NewOnesignalHealthBloc(sl()),
+  );
+  sl.registerFactory(
+    () => NewOnesignalPrivacyBloc(
+      onesignal: sl(),
+      settings: sl(),
+    ),
+  );
+  sl.registerFactory(
+    () => NewOnesignalSubscriptionBloc(sl()),
+  );
+
   // Data sources
   sl.registerLazySingleton<NewOnesignalDataSource>(
-    () => NewOnesignalDataSourceImpl(),
+    () => NewOnesignalDataSourceImpl(
+      client: sl(),
+      networkInfo: sl(),
+      settings: sl(),
+    ),
   );
 
   //! Features - Settings
   // Bloc
   sl.registerFactory(
-    () => NewSettingsBloc(sl()),
+    () => NewSettingsBloc(
+      settings: sl(),
+      logging: sl(),
+    ),
+  );
+  sl.registerFactory(
+    () => NewRegistrationBloc(
+      registerDevice: sl(),
+      settings: sl(),
+      logging: sl(),
+      onesignal: sl(),
+    ),
+  );
+  sl.registerFactory(
+    () => RegistrationHeadersBloc(),
   );
 
   // Use case
@@ -143,6 +237,12 @@ Future<void> init() async {
       apiGetServerInfo: sl(),
       apiGetSettings: sl(),
     ),
+  );
+
+  //! Feature - Translate
+  // Bloc
+  sl.registerFactory(
+    () => NewTranslateBloc(),
   );
 
   //! Core - API
@@ -205,6 +305,8 @@ Future<void> init() async {
   //TODO: Uncomment when swiching over from injection_container.dart
   // final sharedPreferences = await SharedPreferences.getInstance();
   // sl.registerLazySingleton(() => sharedPreferences);
+  // sl.registerLazySingleton(() => http.Client());
   // sl.registerLazySingleton(() => Connectivity());
   // sl.registerLazySingleton(() => DeviceInfoPlugin());
+  // sl.registerLazySingleton(() => DefaultCacheManager());
 }
